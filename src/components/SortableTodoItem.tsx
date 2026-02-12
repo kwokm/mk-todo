@@ -6,7 +6,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { TodoItem } from "./TodoItem";
 import type { Todo } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { GripVertical } from "lucide-react";
 
 interface SortableTodoItemProps {
   todo: Todo;
@@ -38,24 +37,6 @@ export function SortableTodoItem({ todo, source, onUpdate, onDelete }: SortableT
     setTimeout(() => onDelete(id), 200);
   }, [onDelete]);
 
-  const dragHandle = (
-    <button
-      type="button"
-      className={cn(
-        "flex size-5 shrink-0 items-center justify-center rounded-sm",
-        "text-white/10 transition-colors duration-150 cursor-grab active:cursor-grabbing",
-        "hover:text-white/50 md:text-transparent md:group-hover:text-white/25 md:group-hover:hover:text-white/50",
-        isDragging && "text-white/50"
-      )}
-      aria-label="Drag to reorder"
-      {...attributes}
-      {...listeners}
-      tabIndex={-1}
-    >
-      <GripVertical className="size-3" />
-    </button>
-  );
-
   return (
     <div
       ref={setNodeRef}
@@ -63,20 +44,21 @@ export function SortableTodoItem({ todo, source, onUpdate, onDelete }: SortableT
       className={cn(
         !animated && "animate-fade-slide-in",
         isDeleting && "animate-collapse-out",
-        isDragging && "z-50 opacity-90"
+        isDragging && "z-50 cursor-grabbing opacity-90",
       )}
       onAnimationEnd={(e) => {
         if (e.animationName === "fadeSlideIn") {
           setAnimated(true);
         }
       }}
+      {...attributes}
+      {...listeners}
     >
       <TodoItem
         todo={todo}
         source={source}
         onUpdate={onUpdate}
         onDelete={handleDelete}
-        dragHandle={dragHandle}
       />
     </div>
   );

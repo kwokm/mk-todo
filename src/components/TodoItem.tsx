@@ -12,10 +12,9 @@ interface TodoItemProps {
   source?: string;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
-  dragHandle?: React.ReactNode;
 }
 
-export function TodoItem({ todo, source, onUpdate, onDelete, dragHandle }: TodoItemProps) {
+export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [justCompleted, setJustCompleted] = useState(false);
@@ -94,7 +93,6 @@ export function TodoItem({ todo, source, onUpdate, onDelete, dragHandle }: TodoI
   const actions = (
     <>
       {source && <MoveToMenu todoId={todo.id} source={source} />}
-      {dragHandle}
       <button
         type="button"
         onClick={() => onDelete(todo.id)}
