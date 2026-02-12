@@ -118,7 +118,7 @@ type ScopedContext = {
   snapshot: DayTodosResponse | ListTodosResponse | undefined;
 };
 
-function sourceToQueryKey(source: string): QueryKey {
+export function sourceToQueryKey(source: string): QueryKey {
   if (source.startsWith("day:")) {
     return ["dayTodos", source.slice(4)];
   }

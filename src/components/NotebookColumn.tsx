@@ -36,8 +36,7 @@ export function NotebookColumn({
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const { setNodeRef, isOver } = useDroppable({ id: containerId });
+  const { setNodeRef } = useDroppable({ id: containerId });
 
   useEffect(() => {
     if (activeLineIndex !== null) {
@@ -80,7 +79,6 @@ export function NotebookColumn({
         className={cn(
           "notebook-lines transition-colors duration-200",
           notebookClassName,
-          isOver && "bg-[#9333ea]/[0.04] ring-1 ring-inset ring-[#9333ea]/20"
         )}
       >
         <SortableContext
@@ -91,6 +89,7 @@ export function NotebookColumn({
             <AnimatedTodoItem
               key={todo.id}
               todo={todo}
+              source={containerId}
               onUpdate={onUpdateTodo}
               onDelete={onDeleteTodo}
             />

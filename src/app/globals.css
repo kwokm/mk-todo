@@ -194,7 +194,7 @@
   }
 
   .animate-fade-slide-in {
-    animation: fadeSlideIn var(--transition-normal) var(--ease-out-expo) both;
+    animation: fadeSlideIn var(--transition-normal) var(--ease-out-expo) forwards;
   }
 
   .animate-collapse-out {

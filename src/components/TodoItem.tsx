@@ -5,15 +5,17 @@ import { cn } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
 import type { Todo } from "@/lib/types";
 import { Check, GripVertical, X } from "lucide-react";
+import { MoveToMenu } from "@/components/MoveToMenu";
 
 interface TodoItemProps {
   todo: Todo;
+  source?: string;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
   dragHandleProps?: Record<string, unknown>;
 }
 
-export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItemProps) {
+export function TodoItem({ todo, source, onUpdate, onDelete, dragHandleProps }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [justCompleted, setJustCompleted] = useState(false);
@@ -113,12 +115,13 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
       <button
         type="button"
         {...dragHandleProps}
-        className="flex size-5 shrink-0 cursor-grab items-center justify-center text-white/10 transition-colors duration-150 md:text-transparent group-hover:text-white/30"
+        className="flex size-5 shrink-0 cursor-grab items-center justify-center text-white/10 transition-colors duration-150 active:cursor-grabbing focus-visible:text-white/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#9333ea]/50 md:text-transparent group-hover:text-white/30"
         aria-label="Drag to reorder"
-        tabIndex={-1}
       >
         <GripVertical className="size-3" />
       </button>
+
+      {source && <MoveToMenu todoId={todo.id} source={source} />}
 
       <button
         type="button"
