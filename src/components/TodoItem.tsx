@@ -87,6 +87,10 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
   }
 
   function handleKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    // Stop propagation so dnd-kit's keyboard listener on the parent
+    // sortable wrapper doesn't hijack Space / arrow keys while editing.
+    e.stopPropagation();
+
     if (e.key === "Enter") {
       saveEdit();
     }
