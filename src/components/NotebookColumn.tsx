@@ -33,7 +33,18 @@ interface NotebookColumnProps {
   onReorderTodos?: (todoIds: string[]) => void;
 }
 
-const DEFAULT_MIN_LINES = 10;
+function useMinLines() {
+  const [minLines, setMinLines] = useState(20);
+  useEffect(() => {
+    function update() {
+      setMinLines(window.innerWidth >= 768 ? 13 : 20);
+    }
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return minLines;
+}
 
 export function NotebookColumn({
   header,
@@ -46,7 +57,8 @@ export function NotebookColumn({
   onDeleteTodo,
   onReorderTodos,
 }: NotebookColumnProps) {
-  const emptyLines = emptyLinesProp ?? Math.max(DEFAULT_MIN_LINES - todos.length, 1);
+  const minLines = useMinLines();
+  const emptyLines = emptyLinesProp ?? Math.max(minLines - todos.length, 1);
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
