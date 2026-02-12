@@ -30,6 +30,7 @@ interface NotebookColumnProps {
   onUpdateTodo: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDeleteTodo: (id: string) => void;
   onReorder: (todoIds: string[]) => void;
+  onMove?: (id: string, toSource: string) => void;
 }
 
 const DEFAULT_EMPTY_LINES = 20;
@@ -43,6 +44,7 @@ export function NotebookColumn({
   onUpdateTodo,
   onDeleteTodo,
   onReorder,
+  onMove,
 }: NotebookColumnProps) {
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState("");
@@ -77,6 +79,7 @@ export function NotebookColumn({
     if (e.key === "Enter" && inputText.trim()) {
       onCreateTodo(inputText.trim());
       setInputText("");
+      setActiveLineIndex((prev) => (prev !== null ? prev + 1 : null));
     } else if (e.key === "Enter" && !inputText.trim()) {
       setActiveLineIndex(null);
     } else if (e.key === "Escape") {
@@ -114,6 +117,7 @@ export function NotebookColumn({
                 todo={todo}
                 onUpdate={onUpdateTodo}
                 onDelete={onDeleteTodo}
+                onMove={onMove}
               />
             ))}
           </SortableContext>

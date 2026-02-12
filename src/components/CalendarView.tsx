@@ -9,6 +9,7 @@ import {
   useUpdateTodo,
   useDeleteTodo,
   useReorderTodos,
+  useMoveTodo,
 } from "@/hooks/useTodos";
 
 function DayColumnContainer({ date }: { date: Date }) {
@@ -19,6 +20,7 @@ function DayColumnContainer({ date }: { date: Date }) {
   const updateTodo = useUpdateTodo();
   const deleteTodo = useDeleteTodo();
   const reorderTodos = useReorderTodos();
+  const moveTodo = useMoveTodo();
 
   if (isLoading) {
     return (
@@ -58,6 +60,7 @@ function DayColumnContainer({ date }: { date: Date }) {
       onReorder={(todoIds) =>
         reorderTodos.mutate({ todoIds, key: `day:${dateKey}` })
       }
+      onMove={(id, toSource) => moveTodo.mutate({ todoId: id, fromSource: `day:${dateKey}`, toSource })}
     />
   );
 }

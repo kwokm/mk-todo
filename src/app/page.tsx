@@ -41,6 +41,7 @@ export default function Home() {
           setCurrentStartDate((prev) => addDays(prev, days))
         }
         onToday={() => setCurrentStartDate(new Date())}
+        onDateSelect={(date) => setCurrentStartDate(date)}
       />
 
       {/* Desktop layout */}

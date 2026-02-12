@@ -4,17 +4,21 @@ import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { cn } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
 import type { Todo } from "@/lib/types";
-import { Check, GripVertical, X } from "lucide-react";
+import { Check, GripVertical, X, CalendarDays } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 interface TodoItemProps {
   todo: Todo;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
+  onMove?: (id: string, toSource: string) => void;
   dragHandleProps?: Record<string, unknown>;
 }
 
-export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItemProps) {
+export function TodoItem({ todo, onUpdate, onDelete, onMove, dragHandleProps }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
+  const [moveOpen, setMoveOpen] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [justCompleted, setJustCompleted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -119,6 +123,33 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
       >
         <GripVertical className="size-3" />
       </button>
+
+      {onMove && (
+        <Popover open={moveOpen} onOpenChange={setMoveOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/10 transition-colors duration-150 hover:text-[#9333ea] md:text-transparent group-hover:text-white/30"
+              aria-label="Move to day"
+              tabIndex={-1}
+            >
+              <CalendarDays className="size-3" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-auto p-0" onClick={(e) => e.stopPropagation()}>
+            <Calendar
+              mode="single"
+              onSelect={(date) => {
+                if (date) {
+                  const dateKey = date.toISOString().split("T")[0];
+                  onMove(todo.id, `day:${dateKey}`);
+                  setMoveOpen(false);
+                }
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      )}
 
       <button
         type="button"

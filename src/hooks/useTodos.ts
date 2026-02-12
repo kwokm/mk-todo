@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient, type QueryKey } from "@tanstack/react-query";
+import { toast } from "sonner";
 import type {
   Todo,
   DayTodosResponse,
@@ -95,6 +96,7 @@ export function useCreateTodo() {
       if (context?.snapshot) {
         queryClient.setQueryData(context.queryKey, context.snapshot);
       }
+      toast.error("Failed to create todo");
     },
     onSettled: (_data, _err, _vars, context) => {
       if (context?.queryKey) {
@@ -160,6 +162,7 @@ export function useUpdateTodo() {
       if (context?.snapshot) {
         queryClient.setQueryData(context.queryKey, context.snapshot);
       }
+      toast.error("Failed to update todo");
     },
     onSettled: (_data, _err, _vars, context) => {
       if (context?.queryKey) {
@@ -208,6 +211,7 @@ export function useDeleteTodo() {
       if (context?.snapshot) {
         queryClient.setQueryData(context.queryKey, context.snapshot);
       }
+      toast.error("Failed to delete todo");
     },
     onSettled: (_data, _err, _vars, context) => {
       if (context?.queryKey) {
@@ -269,10 +273,86 @@ export function useReorderTodos() {
       if (context?.snapshot) {
         queryClient.setQueryData(context.queryKey, context.snapshot);
       }
+      toast.error("Failed to reorder");
     },
     onSettled: (_data, _err, _vars, context) => {
       if (context?.queryKey) {
         queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
+    },
+  });
+}
+
+type MoveTodoArgs = {
+  todoId: string;
+  fromSource: string;
+  toSource: string;
+};
+
+type MoveTodoContext = {
+  fromQueryKey: QueryKey;
+  toQueryKey: QueryKey;
+  fromSnapshot: DayTodosResponse | ListTodosResponse | undefined;
+  toSnapshot: DayTodosResponse | ListTodosResponse | undefined;
+};
+
+export function useMoveTodo() {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ success: boolean }, Error, MoveTodoArgs, MoveTodoContext>({
+    mutationFn: async ({ todoId, fromSource, toSource }) => {
+      const res = await fetch("/api/todos/move", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ todoId, fromSource, toSource }),
+      });
+      if (!res.ok) throw new Error("Failed to move todo");
+      return res.json();
+    },
+    onMutate: async ({ todoId, fromSource, toSource }) => {
+      const fromQueryKey = sourceToQueryKey(fromSource);
+      const toQueryKey = sourceToQueryKey(toSource);
+
+      await queryClient.cancelQueries({ queryKey: fromQueryKey });
+      await queryClient.cancelQueries({ queryKey: toQueryKey });
+
+      const fromSnapshot = queryClient.getQueryData<DayTodosResponse | ListTodosResponse>(fromQueryKey);
+      const toSnapshot = queryClient.getQueryData<DayTodosResponse | ListTodosResponse>(toQueryKey);
+
+      // Find the todo being moved
+      const todo = fromSnapshot?.todos.find((t) => t.id === todoId);
+
+      if (fromSnapshot) {
+        queryClient.setQueryData(fromQueryKey, {
+          ...fromSnapshot,
+          todos: fromSnapshot.todos.filter((t) => t.id !== todoId),
+        });
+      }
+
+      if (toSnapshot && todo) {
+        queryClient.setQueryData(toQueryKey, {
+          ...toSnapshot,
+          todos: [...toSnapshot.todos, todo],
+        });
+      }
+
+      return { fromQueryKey, toQueryKey, fromSnapshot, toSnapshot };
+    },
+    onError: (_err, _vars, context) => {
+      if (context) {
+        if (context.fromSnapshot) {
+          queryClient.setQueryData(context.fromQueryKey, context.fromSnapshot);
+        }
+        if (context.toSnapshot) {
+          queryClient.setQueryData(context.toQueryKey, context.toSnapshot);
+        }
+      }
+      toast.error("Failed to move todo");
+    },
+    onSettled: (_data, _err, _vars, context) => {
+      if (context) {
+        queryClient.invalidateQueries({ queryKey: context.fromQueryKey });
+        queryClient.invalidateQueries({ queryKey: context.toQueryKey });
       }
     },
   });

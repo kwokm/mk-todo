@@ -10,9 +10,10 @@ interface SortableTodoItemProps {
   todo: Todo;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
+  onMove?: (id: string, toSource: string) => void;
 }
 
-export function SortableTodoItem({ todo, onUpdate, onDelete }: SortableTodoItemProps) {
+export function SortableTodoItem({ todo, onUpdate, onDelete, onMove }: SortableTodoItemProps) {
   const {
     attributes,
     listeners,
@@ -41,6 +42,7 @@ export function SortableTodoItem({ todo, onUpdate, onDelete }: SortableTodoItemP
         todo={todo}
         onUpdate={onUpdate}
         onDelete={onDelete}
+        onMove={onMove}
         dragHandleProps={listeners}
       />
     </div>

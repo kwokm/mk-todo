@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Fjalla_One } from "next/font/google";
+import { Toaster } from "sonner";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import "./globals.css";
 
@@ -27,7 +28,10 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} ${fjalla.variable} font-sans antialiased`}>
-        <QueryProvider>{children}</QueryProvider>
+        <QueryProvider>
+          {children}
+          <Toaster theme="dark" position="bottom-center" richColors />
+        </QueryProvider>
       </body>
     </html>
   );

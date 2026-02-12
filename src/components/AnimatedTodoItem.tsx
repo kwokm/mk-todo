@@ -9,9 +9,10 @@ interface AnimatedTodoItemProps {
   todo: Todo;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
+  onMove?: (id: string, toSource: string) => void;
 }
 
-export function AnimatedTodoItem({ todo, onUpdate, onDelete }: AnimatedTodoItemProps) {
+export function AnimatedTodoItem({ todo, onUpdate, onDelete, onMove }: AnimatedTodoItemProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = useCallback((id: string) => {
@@ -30,6 +31,7 @@ export function AnimatedTodoItem({ todo, onUpdate, onDelete }: AnimatedTodoItemP
         todo={todo}
         onUpdate={onUpdate}
         onDelete={handleDelete}
+        onMove={onMove}
       />
     </div>
   );

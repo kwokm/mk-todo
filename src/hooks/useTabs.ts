@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import type { Tab, TodoList } from "@/lib/types";
 
 export function useTabs() {
@@ -30,6 +31,9 @@ export function useCreateTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tabs"] });
     },
+    onError: () => {
+      toast.error("Failed to create tab");
+    },
   });
 }
 
@@ -49,6 +53,9 @@ export function useUpdateTab() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tabs"] });
     },
+    onError: () => {
+      toast.error("Failed to update tab");
+    },
   });
 }
 
@@ -67,6 +74,9 @@ export function useDeleteTab() {
       queryClient.invalidateQueries({ queryKey: ["tabs"] });
       queryClient.invalidateQueries({ queryKey: ["lists"] });
       queryClient.invalidateQueries({ queryKey: ["listTodos"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete tab");
     },
   });
 }
@@ -98,6 +108,9 @@ export function useCreateList() {
     onSuccess: (_data, { tabId }) => {
       queryClient.invalidateQueries({ queryKey: ["lists", tabId] });
     },
+    onError: () => {
+      toast.error("Failed to create list");
+    },
   });
 }
 
@@ -121,6 +134,9 @@ export function useUpdateList() {
     onSuccess: (_data, { tabId }) => {
       queryClient.invalidateQueries({ queryKey: ["lists", tabId] });
     },
+    onError: () => {
+      toast.error("Failed to update list");
+    },
   });
 }
 
@@ -142,6 +158,9 @@ export function useDeleteList() {
     onSuccess: (_data, { tabId }) => {
       queryClient.invalidateQueries({ queryKey: ["lists", tabId] });
       queryClient.invalidateQueries({ queryKey: ["listTodos"] });
+    },
+    onError: () => {
+      toast.error("Failed to delete list");
     },
   });
 }
