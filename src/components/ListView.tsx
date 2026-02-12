@@ -21,13 +21,13 @@ function ListColumnContainer({ list }: { list: TodoList }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col border-r border-[#1a1a1a] last:border-r-0">
-        <div className="shrink-0 px-3 pt-3 pb-2">
-          <div className="h-3 w-20 animate-pulse rounded bg-white/10" />
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="shrink-0 px-5 pt-4 pb-3">
+          <div className="h-5 w-32 animate-pulse rounded bg-white/10" />
         </div>
-        <div className="flex-1 space-y-1 px-2 pt-1">
+        <div className="notebook-lines flex-1 space-y-1 px-2 pt-1">
           {[1, 2].map((i) => (
-            <div key={i} className="h-6 animate-pulse rounded bg-white/5" />
+            <div key={i} className="h-8" />
           ))}
         </div>
       </div>
@@ -36,7 +36,7 @@ function ListColumnContainer({ list }: { list: TodoList }) {
 
   if (isError) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col border-r border-[#1a1a1a] last:border-r-0">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="flex h-full items-center justify-center px-3">
           <p className="text-xs text-red-400/70">Failed to load</p>
         </div>
@@ -106,16 +106,16 @@ export function ListView({ activeTabId }: ListViewProps) {
   return (
     <>
       {/* Mobile: stacked vertically */}
-      <div className="flex h-full flex-col overflow-y-auto md:hidden">
+      <div className="flex h-full flex-col gap-4 overflow-y-auto px-2 md:hidden">
         {lists.map((list) => (
-          <div key={list.id} className="min-h-[200px] border-b border-[#1a1a1a] last:border-b-0">
+          <div key={list.id} className="min-h-[200px]">
             <ListColumnContainer list={list} />
           </div>
         ))}
       </div>
 
-      {/* Tablet+Desktop: horizontal scroll */}
-      <div className="hidden h-full overflow-x-auto md:flex">
+      {/* Tablet+Desktop: horizontal */}
+      <div className="hidden h-full gap-4 overflow-x-auto px-2 md:flex">
         {lists.map((list) => (
           <ListColumnContainer key={list.id} list={list} />
         ))}

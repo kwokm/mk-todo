@@ -112,8 +112,8 @@ export function ListColumn({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col border-r border-[#1a1a1a] last:border-r-0">
-      <div className="shrink-0 px-3 pt-3 pb-2">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="shrink-0 px-5 pt-4 pb-3">
         {editingName ? (
           <input
             ref={nameInputRef}
@@ -122,7 +122,7 @@ export function ListColumn({
             onChange={(e) => setNameText(e.target.value)}
             onKeyDown={handleNameKeyDown}
             onBlur={saveName}
-            className="w-full bg-transparent text-xs font-bold uppercase text-white outline-none"
+            className="w-full bg-transparent font-heading text-lg font-bold uppercase text-white outline-none"
           />
         ) : (
           <p
@@ -130,14 +130,14 @@ export function ListColumn({
               setNameText(list.name);
               setEditingName(true);
             }}
-            className="cursor-text text-xs font-bold uppercase text-white"
+            className="cursor-text font-heading text-lg font-bold uppercase text-white"
           >
             {list.name}
           </p>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-none">
+      <div className="notebook-lines flex-1 overflow-y-auto scrollbar-none">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -149,7 +149,7 @@ export function ListColumn({
             strategy={verticalListSortingStrategy}
           >
             {todos.map((todo) => (
-              <div key={todo.id} className="border-b border-[#1a1a1a]">
+              <div key={todo.id}>
                 <SortableTodoItem
                   todo={todo}
                   onUpdate={onUpdateTodo}
@@ -167,7 +167,7 @@ export function ListColumn({
           return (
             <div
               key={`empty-${i}`}
-              className="h-8 border-b border-[#1a1a1a] px-1"
+              className="h-8 px-1"
               onClick={() => handleLineClick(lineIndex)}
             >
               {isActive ? (

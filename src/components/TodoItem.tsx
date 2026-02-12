@@ -52,8 +52,11 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
     }
   }
 
+  const isHeader = todo.text.startsWith("# ");
+  const displayText = isHeader ? todo.text.slice(2) : todo.text;
+
   return (
-    <div className="group flex h-8 items-center gap-1 px-1 transition-colors duration-150 hover:bg-[#111]">
+    <div className="group flex h-8 items-center gap-1 overflow-hidden px-1 transition-colors duration-150 hover:bg-[#111]">
       <button
         type="button"
         onClick={() => onUpdate(todo.id, { completed: !todo.completed })}
@@ -78,11 +81,20 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
           onBlur={saveEdit}
           className="min-w-0 flex-1 bg-transparent px-1 text-sm leading-8 text-white outline-none"
         />
+      ) : isHeader ? (
+        <span
+          onClick={startEdit}
+          className="min-w-0 flex-1 cursor-text px-1 leading-8"
+        >
+          <span className="inline-block rounded bg-[#2a2a2a] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+            {displayText}
+          </span>
+        </span>
       ) : (
         <span
           onClick={startEdit}
           className={cn(
-            "min-w-0 flex-1 cursor-text px-1 text-sm leading-8",
+            "min-w-0 flex-1 cursor-text truncate px-1 text-sm leading-8",
             todo.completed && "text-muted-foreground line-through opacity-50"
           )}
         >

@@ -91,14 +91,14 @@ export function DayColumn({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col border-r border-[#1a1a1a] last:border-r-0">
-      <div className="shrink-0 px-3 pt-3 pb-2">
-        <p className="text-[10px] leading-tight text-muted-foreground">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+      <div className="shrink-0 px-5 pt-4 pb-3">
+        <p className="text-[10px] uppercase leading-tight tracking-wider text-muted-foreground">
           {getDateLabel(date)}
         </p>
         <p
           className={cn(
-            "text-xs font-bold uppercase leading-tight",
+            "font-heading text-2xl font-bold uppercase leading-tight",
             today ? "text-[#9333ea]" : "text-white"
           )}
         >
@@ -106,7 +106,7 @@ export function DayColumn({
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-none">
+      <div className="notebook-lines flex-1 overflow-y-auto scrollbar-none">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -118,7 +118,7 @@ export function DayColumn({
             strategy={verticalListSortingStrategy}
           >
             {todos.map((todo) => (
-              <div key={todo.id} className="border-b border-[#1a1a1a]">
+              <div key={todo.id}>
                 <SortableTodoItem
                   todo={todo}
                   onUpdate={onUpdateTodo}
@@ -136,7 +136,7 @@ export function DayColumn({
           return (
             <div
               key={`empty-${i}`}
-              className="h-8 border-b border-[#1a1a1a] px-1"
+              className="h-8 px-1"
               onClick={() => handleLineClick(lineIndex)}
             >
               {isActive ? (

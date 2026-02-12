@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Fjalla_One } from "next/font/google";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import "./globals.css";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+});
+
+const fjalla = Fjalla_One({
+  variable: "--font-fjalla",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -20,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`${inter.variable} ${fjalla.variable} font-sans antialiased`}>
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>

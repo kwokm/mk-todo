@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 interface TopBarProps {
   currentStartDate: Date;
@@ -21,8 +21,10 @@ export function TopBar({ onNavigate, onToday }: TopBarProps) {
         TODAY
       </Button>
 
-      <span className="text-sm font-bold uppercase tracking-wider text-[#9333ea]">
-        MK-TODO
+      <span className="text-sm font-bold uppercase tracking-wider">
+        <span className="text-[#9333ea]">MK-</span>
+        <span className="text-white">TODO</span>
+        <span className="text-red-500">*</span>
       </span>
 
       <div className="flex items-center gap-0.5">
@@ -61,6 +63,15 @@ export function TopBar({ onNavigate, onToday }: TopBarProps) {
           aria-label="Next week"
         >
           <ChevronsRight className="size-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          onClick={onToday}
+          className="ml-1 text-white/50 hover:text-white"
+          aria-label="Go to today"
+        >
+          <CalendarDays className="size-4" />
         </Button>
       </div>
     </header>

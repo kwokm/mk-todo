@@ -21,14 +21,14 @@ function DayColumnContainer({ date }: { date: Date }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col border-r border-[#1a1a1a] last:border-r-0">
-        <div className="shrink-0 px-3 pt-3 pb-2">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <div className="shrink-0 px-5 pt-4 pb-3">
           <div className="h-3 w-16 animate-pulse rounded bg-white/5" />
-          <div className="mt-1 h-3 w-12 animate-pulse rounded bg-white/10" />
+          <div className="mt-1 h-5 w-24 animate-pulse rounded bg-white/10" />
         </div>
-        <div className="flex-1 space-y-1 px-2 pt-1">
+        <div className="notebook-lines flex-1 space-y-1 px-2 pt-1">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-6 animate-pulse rounded bg-white/5" />
+            <div key={i} className="h-8" />
           ))}
         </div>
       </div>
@@ -37,7 +37,7 @@ function DayColumnContainer({ date }: { date: Date }) {
 
   if (isError) {
     return (
-      <div className="flex min-h-0 flex-1 flex-col border-r border-[#1a1a1a] last:border-r-0">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="flex h-full items-center justify-center px-3">
           <p className="text-xs text-red-400/70">Failed to load</p>
         </div>
@@ -69,21 +69,21 @@ export function CalendarView({ startDate }: CalendarViewProps) {
   const dates = Array.from({ length: 5 }, (_, i) => addDays(startDate, i));
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full px-2">
       {/* Mobile: 1 day */}
-      <div className="flex h-full flex-1 md:hidden">
+      <div className="flex h-full flex-1 gap-4 md:hidden">
         <DayColumnContainer date={dates[0]} />
       </div>
 
       {/* Tablet: 3 days */}
-      <div className="hidden h-full flex-1 md:flex lg:hidden">
+      <div className="hidden h-full flex-1 gap-4 md:flex lg:hidden">
         {dates.slice(0, 3).map((date) => (
           <DayColumnContainer key={formatDateKey(date)} date={date} />
         ))}
       </div>
 
       {/* Desktop: 5 days */}
-      <div className="hidden h-full flex-1 lg:flex">
+      <div className="hidden h-full flex-1 gap-4 lg:flex">
         {dates.map((date) => (
           <DayColumnContainer key={formatDateKey(date)} date={date} />
         ))}

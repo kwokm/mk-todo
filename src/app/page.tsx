@@ -34,7 +34,7 @@ export default function Home() {
       />
 
       <div className="flex min-h-0 flex-1 flex-col">
-        <div className="min-h-0 flex-1 border-b border-[#1a1a1a]">
+        <div className="min-h-0 flex-[11] border-b border-[#1a1a1a]">
           <CalendarView startDate={currentStartDate} />
         </div>
 
@@ -47,7 +47,7 @@ export default function Home() {
           onDeleteTab={(tabId) => deleteTab.mutate({ tabId })}
         />
 
-        <div className="min-h-0 flex-1">
+        <div className="min-h-0 flex-[9] bg-[#0a0a0a]">
           {resolvedActiveTabId && (
             <ListView activeTabId={resolvedActiveTabId} />
           )}
