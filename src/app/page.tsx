@@ -7,6 +7,7 @@ import { CalendarView } from "@/components/CalendarView";
 import { TabBar } from "@/components/TabBar";
 import { ListView } from "@/components/ListView";
 import { BottomSheet } from "@/components/BottomSheet";
+import { TodoDndProvider } from "@/components/TodoDndProvider";
 import {
   useTabs,
   useCreateTab,
@@ -44,38 +45,13 @@ export default function Home() {
         onDateSelect={(date) => setCurrentStartDate(date)}
       />
 
-      {/* Desktop layout */}
-      <div className="hidden min-h-0 flex-1 flex-col md:flex">
-        <div className="min-h-0 flex-[11] border-b border-[#1a1a1a]">
-          <CalendarView startDate={currentStartDate} />
-        </div>
+      <TodoDndProvider>
+        {/* Desktop layout */}
+        <div className="hidden min-h-0 flex-1 flex-col md:flex">
+          <div className="min-h-0 flex-[11] border-b border-[#1a1a1a]">
+            <CalendarView startDate={currentStartDate} />
+          </div>
 
-        <TabBar
-          tabs={tabs}
-          activeTabId={resolvedActiveTabId}
-          onSelectTab={setActiveTabId}
-          onCreateTab={() => createTab.mutate({ name: "New Tab" })}
-          onUpdateTab={(tabId, name) => updateTab.mutate({ tabId, name })}
-          onDeleteTab={(tabId) => deleteTab.mutate({ tabId })}
-        />
-
-        <div className="min-h-0 flex-[9] bg-[#0a0a0a]">
-          {resolvedActiveTabId && (
-            <ListView activeTabId={resolvedActiveTabId} />
-          )}
-        </div>
-      </div>
-
-      {/* Mobile layout */}
-      <div className="flex min-h-0 flex-1 flex-col pb-20 md:hidden">
-        <div className="min-h-0 flex-1">
-          <CalendarView startDate={currentStartDate} />
-        </div>
-      </div>
-
-      {/* Mobile bottom sheet */}
-      <BottomSheet
-        header={
           <TabBar
             tabs={tabs}
             activeTabId={resolvedActiveTabId}
@@ -84,12 +60,39 @@ export default function Home() {
             onUpdateTab={(tabId, name) => updateTab.mutate({ tabId, name })}
             onDeleteTab={(tabId) => deleteTab.mutate({ tabId })}
           />
-        }
-      >
-        {resolvedActiveTabId && (
-          <ListView activeTabId={resolvedActiveTabId} />
-        )}
-      </BottomSheet>
+
+          <div className="min-h-0 flex-[9] bg-[#0a0a0a]">
+            {resolvedActiveTabId && (
+              <ListView activeTabId={resolvedActiveTabId} />
+            )}
+          </div>
+        </div>
+
+        {/* Mobile layout */}
+        <div className="flex min-h-0 flex-1 flex-col pb-20 md:hidden">
+          <div className="min-h-0 flex-1">
+            <CalendarView startDate={currentStartDate} />
+          </div>
+        </div>
+
+        {/* Mobile bottom sheet */}
+        <BottomSheet
+          header={
+            <TabBar
+              tabs={tabs}
+              activeTabId={resolvedActiveTabId}
+              onSelectTab={setActiveTabId}
+              onCreateTab={() => createTab.mutate({ name: "New Tab" })}
+              onUpdateTab={(tabId, name) => updateTab.mutate({ tabId, name })}
+              onDeleteTab={(tabId) => deleteTab.mutate({ tabId })}
+            />
+          }
+        >
+          {resolvedActiveTabId && (
+            <ListView activeTabId={resolvedActiveTabId} />
+          )}
+        </BottomSheet>
+      </TodoDndProvider>
     </div>
   );
 }
