@@ -1,7 +1,7 @@
 "use client";
 
 import { ListColumn } from "@/components/ListColumn";
-import { useLists, useCreateList, useUpdateList, useDeleteList } from "@/hooks/useTabs";
+import { useLists, useCreateList, useUpdateList, useDeleteList, useReorderLists } from "@/hooks/useTabs";
 import {
   useListTodos,
   useCreateTodo,
@@ -18,11 +18,17 @@ function ListColumnContainer({
   emptyLines,
   onUpdateListName,
   onDeleteList,
+  onMoveList,
+  isFirst,
+  isLast,
 }: {
   list: TodoList;
   emptyLines?: number;
   onUpdateListName: (name: string) => void;
   onDeleteList: () => void;
+  onMoveList: (direction: -1 | 1) => void;
+  isFirst: boolean;
+  isLast: boolean;
 }) {
   const { data, isLoading, isError } = useListTodos(list.tabId, list.id);
   const todos = data?.todos ?? [];
@@ -77,6 +83,9 @@ function ListColumnContainer({
       }
       onUpdateListName={onUpdateListName}
       onDeleteList={onDeleteList}
+      onMoveList={onMoveList}
+      isFirst={isFirst}
+      isLast={isLast}
     />
   );
 }
@@ -90,6 +99,19 @@ export function ListView({ activeTabId }: ListViewProps) {
   const createList = useCreateList();
   const updateList = useUpdateList();
   const deleteList = useDeleteList();
+  const reorderLists = useReorderLists();
+
+  function handleMoveList(index: number, direction: -1 | 1) {
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= lists.length) return;
+    const reordered = [...lists];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(newIndex, 0, moved);
+    reorderLists.mutate({
+      tabId: activeTabId,
+      listIds: reordered.map((l) => l.id),
+    });
+  }
 
   if (isLoading) {
     return (
@@ -136,7 +158,7 @@ export function ListView({ activeTabId }: ListViewProps) {
     <div key={activeTabId} className="animate-fade-in h-full">
       {/* Mobile: stacked vertically */}
       <div className="flex flex-col gap-4 overflow-y-auto px-2 md:hidden">
-        {lists.map((list) => (
+        {lists.map((list, index) => (
           <div key={list.id}>
             <ListColumnContainer
               list={list}
@@ -147,6 +169,9 @@ export function ListView({ activeTabId }: ListViewProps) {
               onDeleteList={() =>
                 deleteList.mutate({ tabId: activeTabId, listId: list.id })
               }
+              onMoveList={(dir) => handleMoveList(index, dir)}
+              isFirst={index === 0}
+              isLast={index === lists.length - 1}
             />
           </div>
         ))}
@@ -157,7 +182,7 @@ export function ListView({ activeTabId }: ListViewProps) {
 
       {/* Tablet+Desktop: horizontal */}
       <div className="hidden h-full gap-4 overflow-x-auto scrollbar-fade px-2 md:flex">
-        {lists.map((list) => (
+        {lists.map((list, index) => (
           <ListColumnContainer
             key={list.id}
             list={list}
@@ -167,6 +192,9 @@ export function ListView({ activeTabId }: ListViewProps) {
             onDeleteList={() =>
               deleteList.mutate({ tabId: activeTabId, listId: list.id })
             }
+            onMoveList={(dir) => handleMoveList(index, dir)}
+            isFirst={index === 0}
+            isLast={index === lists.length - 1}
           />
         ))}
         <div className="flex shrink-0 items-start pt-5">

@@ -164,3 +164,49 @@ export function useDeleteList() {
     },
   });
 }
+
+export function useReorderLists() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    { success: boolean },
+    Error,
+    { tabId: string; listIds: string[] }
+  >({
+    mutationFn: async ({ tabId, listIds }) => {
+      const res = await fetch(`/api/tabs/${tabId}/lists/reorder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ listIds }),
+      });
+      if (!res.ok) throw new Error("Failed to reorder lists");
+      return res.json();
+    },
+    onMutate: async ({ tabId, listIds }) => {
+      await queryClient.cancelQueries({ queryKey: ["lists", tabId] });
+      const previous = queryClient.getQueryData<TodoList[]>(["lists", tabId]);
+
+      queryClient.setQueryData<TodoList[]>(["lists", tabId], (old) => {
+        if (!old) return old;
+        const map = new Map(old.map((l) => [l.id, l]));
+        return listIds
+          .map((id, i) => {
+            const list = map.get(id);
+            return list ? { ...list, sortOrder: i } : undefined;
+          })
+          .filter((l): l is TodoList => !!l);
+      });
+
+      return { previous, tabId };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous && context?.tabId) {
+        queryClient.setQueryData(["lists", context.tabId], context.previous);
+      }
+      toast.error("Failed to reorder lists");
+    },
+    onSettled: (_data, _err, { tabId }) => {
+      queryClient.invalidateQueries({ queryKey: ["lists", tabId] });
+    },
+  });
+}
