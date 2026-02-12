@@ -104,7 +104,7 @@ export function ListView({ activeTabId }: ListViewProps) {
   }
 
   return (
-    <>
+    <div key={activeTabId} className="animate-fade-in h-full">
       {/* Mobile: stacked vertically */}
       <div className="flex h-full flex-col gap-4 overflow-y-auto px-2 md:hidden">
         {lists.map((list) => (
@@ -115,11 +115,11 @@ export function ListView({ activeTabId }: ListViewProps) {
       </div>
 
       {/* Tablet+Desktop: horizontal */}
-      <div className="hidden h-full gap-4 overflow-x-auto px-2 md:flex">
+      <div className="hidden h-full gap-4 overflow-x-auto scrollbar-fade px-2 md:flex">
         {lists.map((list) => (
           <ListColumnContainer key={list.id} list={list} />
         ))}
       </div>
-    </>
+    </div>
   );
 }

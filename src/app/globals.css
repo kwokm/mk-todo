@@ -46,6 +46,10 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+  --transition-fast: 150ms;
+  --transition-normal: 200ms;
+  --transition-slow: 300ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
@@ -144,6 +148,87 @@
     );
     background-size: 100% 32px;
   }
+  .notebook-lines > *:empty:hover,
+  .notebook-lines > .empty-line:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes collapseOut {
+    from {
+      opacity: 1;
+      max-height: 32px;
+    }
+    to {
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  @keyframes popScale {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+  }
+
+  .animate-fade-slide-in {
+    animation: fadeSlideIn var(--transition-normal) var(--ease-out-expo) both;
+  }
+
+  .animate-collapse-out {
+    animation: collapseOut var(--transition-normal) var(--ease-out-expo) forwards;
+    overflow: hidden;
+  }
+
+  .animate-pop {
+    animation: popScale var(--transition-slow) var(--ease-out-expo);
+  }
+
+  .animate-fade-in {
+    animation: fadeIn var(--transition-normal) ease-out both;
+  }
+
+  .animate-fade-out {
+    animation: fadeOut var(--transition-fast) ease-out both;
+  }
+
+  .scrollbar-fade {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 0.3s;
+  }
+  .scrollbar-fade:hover {
+    scrollbar-color: #333 transparent;
+  }
+  .scrollbar-fade::-webkit-scrollbar-thumb {
+    background: transparent;
+    transition: background 0.3s;
+  }
+  .scrollbar-fade:hover::-webkit-scrollbar-thumb {
+    background: #333;
+  }
 }
 
 ::-webkit-scrollbar {
@@ -159,4 +244,12 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

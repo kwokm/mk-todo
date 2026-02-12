@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { TodoItem } from "./TodoItem";
 import type { Todo } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface SortableTodoItemProps {
   todo: Todo;
@@ -24,11 +25,18 @@ export function SortableTodoItem({ todo, onUpdate, onDelete }: SortableTodoItemP
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      className={cn(
+        "transition-shadow duration-150",
+        isDragging && "relative z-10 scale-[1.02] rounded bg-[#111] shadow-lg shadow-black/50 opacity-90"
+      )}
+    >
       <TodoItem
         todo={todo}
         onUpdate={onUpdate}

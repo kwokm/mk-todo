@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { addDays } from "@/lib/utils";
 import { TopBar } from "@/components/TopBar";
 import { CalendarView } from "@/components/CalendarView";
 import { TabBar } from "@/components/TabBar";
 import { ListView } from "@/components/ListView";
+import { BottomSheet } from "@/components/BottomSheet";
 import {
   useTabs,
   useCreateTab,
@@ -21,6 +22,15 @@ export default function Home() {
   const updateTab = useUpdateTab();
   const deleteTab = useDeleteTab();
 
+  useEffect(() => {
+    function handleSwipe(e: Event) {
+      const { days } = (e as CustomEvent).detail;
+      setCurrentStartDate((prev) => addDays(prev, days));
+    }
+    window.addEventListener("calendar-swipe", handleSwipe);
+    return () => window.removeEventListener("calendar-swipe", handleSwipe);
+  }, []);
+
   const resolvedActiveTabId = activeTabId || tabs[0]?.id || "";
 
   return (
@@ -33,7 +43,8 @@ export default function Home() {
         onToday={() => setCurrentStartDate(new Date())}
       />
 
-      <div className="flex min-h-0 flex-1 flex-col">
+      {/* Desktop layout */}
+      <div className="hidden min-h-0 flex-1 flex-col md:flex">
         <div className="min-h-0 flex-[11] border-b border-[#1a1a1a]">
           <CalendarView startDate={currentStartDate} />
         </div>
@@ -53,6 +64,31 @@ export default function Home() {
           )}
         </div>
       </div>
+
+      {/* Mobile layout */}
+      <div className="flex min-h-0 flex-1 flex-col pb-20 md:hidden">
+        <div className="min-h-0 flex-1">
+          <CalendarView startDate={currentStartDate} />
+        </div>
+      </div>
+
+      {/* Mobile bottom sheet */}
+      <BottomSheet
+        header={
+          <TabBar
+            tabs={tabs}
+            activeTabId={resolvedActiveTabId}
+            onSelectTab={setActiveTabId}
+            onCreateTab={() => createTab.mutate({ name: "New Tab" })}
+            onUpdateTab={(tabId, name) => updateTab.mutate({ tabId, name })}
+            onDeleteTab={(tabId) => deleteTab.mutate({ tabId })}
+          />
+        }
+      >
+        {resolvedActiveTabId && (
+          <ListView activeTabId={resolvedActiveTabId} />
+        )}
+      </BottomSheet>
     </div>
   );
 }

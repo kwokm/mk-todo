@@ -16,6 +16,7 @@ interface TodoItemProps {
 export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
+  const [justCompleted, setJustCompleted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -59,7 +60,13 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
     <div className="group flex h-8 items-center gap-1 overflow-hidden px-1 transition-colors duration-150 hover:bg-[#111]">
       <button
         type="button"
-        onClick={() => onUpdate(todo.id, { completed: !todo.completed })}
+        onClick={() => {
+          if (!todo.completed) {
+            setJustCompleted(true);
+            setTimeout(() => setJustCompleted(false), 300);
+          }
+          onUpdate(todo.id, { completed: !todo.completed });
+        }}
         className={cn(
           "flex size-5 shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
           todo.completed
@@ -68,7 +75,7 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
         )}
         aria-label={todo.completed ? "Mark incomplete" : "Mark complete"}
       >
-        <Check className="size-3" />
+        <Check className={cn("size-3", justCompleted && "animate-pop")} />
       </button>
 
       {editing ? (
@@ -95,6 +102,7 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
           onClick={startEdit}
           className={cn(
             "min-w-0 flex-1 cursor-text truncate px-1 text-sm leading-8",
+            "transition-all duration-200",
             todo.completed && "text-muted-foreground line-through opacity-50"
           )}
         >

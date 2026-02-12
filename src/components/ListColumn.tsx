@@ -18,7 +18,8 @@ import {
 } from "@dnd-kit/sortable";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import type { Todo, TodoList } from "@/lib/types";
-import { SortableTodoItem } from "@/components/SortableTodoItem";
+import { AnimatedTodoItem } from "@/components/AnimatedTodoItem";
+import { cn } from "@/lib/utils";
 
 interface ListColumnProps {
   list: TodoList;
@@ -130,14 +131,14 @@ export function ListColumn({
               setNameText(list.name);
               setEditingName(true);
             }}
-            className="cursor-text font-heading text-lg font-bold uppercase text-white"
+            className="cursor-text font-heading text-lg font-bold uppercase text-white transition-transform duration-150 hover:translate-x-0.5 hover:-translate-y-0.5"
           >
             {list.name}
           </p>
         )}
       </div>
 
-      <div className="notebook-lines flex-1 overflow-y-auto scrollbar-none">
+      <div className="notebook-lines flex-1 overflow-y-auto scrollbar-fade">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -149,13 +150,12 @@ export function ListColumn({
             strategy={verticalListSortingStrategy}
           >
             {todos.map((todo) => (
-              <div key={todo.id}>
-                <SortableTodoItem
-                  todo={todo}
-                  onUpdate={onUpdateTodo}
-                  onDelete={onDeleteTodo}
-                />
-              </div>
+              <AnimatedTodoItem
+                key={todo.id}
+                todo={todo}
+                onUpdate={onUpdateTodo}
+                onDelete={onDeleteTodo}
+              />
             ))}
           </SortableContext>
         </DndContext>
@@ -167,7 +167,10 @@ export function ListColumn({
           return (
             <div
               key={`empty-${i}`}
-              className="h-8 px-1"
+              className={cn(
+                "h-8 px-1 transition-colors duration-150",
+                isActive ? "border-l-2 border-[#9333ea] bg-white/[0.02]" : "empty-line"
+              )}
               onClick={() => handleLineClick(lineIndex)}
             >
               {isActive ? (
