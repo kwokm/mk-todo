@@ -33,7 +33,7 @@ export async function PATCH(
 
   await redis.hset(`todo:${id}`, updates);
 
-  const updated = await redis.hgetall<Record<string, string>>(`todo:${id}`) as unknown as Todo;
+  const updated = { ...existing, ...updates };
   return NextResponse.json(updated);
 }
 

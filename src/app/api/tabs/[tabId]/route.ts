@@ -41,19 +41,25 @@ export async function DELETE(
   await redis.set("tabs", filtered);
 
   const lists = (await redis.get<TodoList[]>(`tab:${tabId}:lists`)) ?? [];
-  const pipeline = redis.pipeline();
 
-  for (const list of lists) {
-    const listKey = `list:${tabId}:${list.id}`;
-    const todoIds = await redis.zrange<string[]>(listKey, 0, -1);
-    for (const todoId of todoIds) {
-      pipeline.del(`todo:${todoId}`);
+  if (lists.length > 0) {
+    const readPipeline = redis.pipeline();
+    for (const list of lists) {
+      readPipeline.zrange(`list:${tabId}:${list.id}`, 0, -1);
     }
-    pipeline.del(listKey);
-  }
+    const allTodoIds = await readPipeline.exec();
 
-  pipeline.del(`tab:${tabId}:lists`);
-  await pipeline.exec();
+    const deletePipeline = redis.pipeline();
+    for (let i = 0; i < lists.length; i++) {
+      const todoIds = (allTodoIds[i] as string[]) ?? [];
+      for (const todoId of todoIds) deletePipeline.del(`todo:${todoId}`);
+      deletePipeline.del(`list:${tabId}:${lists[i].id}`);
+    }
+    deletePipeline.del(`tab:${tabId}:lists`);
+    await deletePipeline.exec();
+  } else {
+    await redis.del(`tab:${tabId}:lists`);
+  }
 
   return NextResponse.json({ success: true });
 }

@@ -67,7 +67,7 @@ function ListColumnContainer({
           source: { type: "list", tabId: list.tabId, listId: list.id },
         })
       }
-      onUpdateTodo={(id, updates) => updateTodo.mutate({ id, ...updates })}
+      onUpdateTodo={(id, updates) => updateTodo.mutate({ id, source: `list:${list.tabId}:${list.id}`, ...updates })}
       onDeleteTodo={(id) =>
         deleteTodo.mutate({ id, source: `list:${list.tabId}:${list.id}` })
       }

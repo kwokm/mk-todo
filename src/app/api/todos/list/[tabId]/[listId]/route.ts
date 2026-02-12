@@ -58,12 +58,9 @@ export async function POST(
     updatedAt: now,
   };
 
-  const maxScore = await redis.zrange<string[]>(key, -1, -1, { withScores: true });
-  const score = maxScore.length >= 2 ? Number(maxScore[1]) + 1 : 0;
-
   const pipeline = redis.pipeline();
   pipeline.hset(`todo:${id}`, todo as unknown as Record<string, string>);
-  pipeline.zadd(key, { score, member: id });
+  pipeline.zadd(key, { score: Date.now(), member: id });
   await pipeline.exec();
 
   return NextResponse.json(todo, { status: 201 });

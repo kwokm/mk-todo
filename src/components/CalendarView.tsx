@@ -53,7 +53,7 @@ function DayColumnContainer({ date }: { date: Date }) {
       onCreateTodo={(text) =>
         createTodo.mutate({ text, source: { type: "day", date: dateKey } })
       }
-      onUpdateTodo={(id, updates) => updateTodo.mutate({ id, ...updates })}
+      onUpdateTodo={(id, updates) => updateTodo.mutate({ id, source: `day:${dateKey}`, ...updates })}
       onDeleteTodo={(id) => deleteTodo.mutate({ id, source: `day:${dateKey}` })}
       onReorder={(todoIds) =>
         reorderTodos.mutate({ todoIds, key: `day:${dateKey}` })

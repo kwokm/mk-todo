@@ -106,20 +106,29 @@ export function useCreateTodo() {
 
 type UpdateTodoArgs = {
   id: string;
+  source: string;
   text?: string;
   completed?: boolean;
 };
 
-type TodoSnapshots = {
-  daySnapshots: [QueryKey, DayTodosResponse | undefined][];
-  listSnapshots: [QueryKey, ListTodosResponse | undefined][];
+type ScopedContext = {
+  queryKey: QueryKey;
+  snapshot: DayTodosResponse | ListTodosResponse | undefined;
 };
+
+function sourceToQueryKey(source: string): QueryKey {
+  if (source.startsWith("day:")) {
+    return ["dayTodos", source.slice(4)];
+  }
+  const parts = source.slice(5).split(":");
+  return ["listTodos", parts[0], parts[1]];
+}
 
 export function useUpdateTodo() {
   const queryClient = useQueryClient();
 
-  return useMutation<Todo, Error, UpdateTodoArgs, TodoSnapshots>({
-    mutationFn: async ({ id, ...body }) => {
+  return useMutation<Todo, Error, UpdateTodoArgs, ScopedContext>({
+    mutationFn: async ({ id, source: _source, ...body }) => {
       const res = await fetch(`/api/todos/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -128,46 +137,34 @@ export function useUpdateTodo() {
       if (!res.ok) throw new Error("Failed to update todo");
       return res.json();
     },
-    onMutate: async ({ id, ...updates }) => {
-      await queryClient.cancelQueries({ queryKey: ["dayTodos"] });
-      await queryClient.cancelQueries({ queryKey: ["listTodos"] });
+    onMutate: async ({ id, source, ...updates }) => {
+      const queryKey = sourceToQueryKey(source);
+      await queryClient.cancelQueries({ queryKey });
 
-      const daySnapshots = queryClient.getQueriesData<DayTodosResponse>({
-        queryKey: ["dayTodos"],
-      });
-      const listSnapshots = queryClient.getQueriesData<ListTodosResponse>({
-        queryKey: ["listTodos"],
-      });
+      const snapshot = queryClient.getQueryData<
+        DayTodosResponse | ListTodosResponse
+      >(queryKey);
 
-      const updateTodoInList = (todos: Todo[]) =>
-        todos.map((t) => (t.id === id ? { ...t, ...updates } : t));
+      if (snapshot) {
+        queryClient.setQueryData(queryKey, {
+          ...snapshot,
+          todos: snapshot.todos.map((t) =>
+            t.id === id ? { ...t, ...updates } : t
+          ),
+        });
+      }
 
-      queryClient.setQueriesData<DayTodosResponse>(
-        { queryKey: ["dayTodos"] },
-        (old) =>
-          old ? { ...old, todos: updateTodoInList(old.todos) } : undefined
-      );
-      queryClient.setQueriesData<ListTodosResponse>(
-        { queryKey: ["listTodos"] },
-        (old) =>
-          old ? { ...old, todos: updateTodoInList(old.todos) } : undefined
-      );
-
-      return { daySnapshots, listSnapshots };
+      return { queryKey, snapshot };
     },
     onError: (_err, _vars, context) => {
-      if (context) {
-        for (const [key, data] of context.daySnapshots) {
-          queryClient.setQueryData(key, data);
-        }
-        for (const [key, data] of context.listSnapshots) {
-          queryClient.setQueryData(key, data);
-        }
+      if (context?.snapshot) {
+        queryClient.setQueryData(context.queryKey, context.snapshot);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["dayTodos"] });
-      queryClient.invalidateQueries({ queryKey: ["listTodos"] });
+    onSettled: (_data, _err, _vars, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
     },
   });
 }
@@ -180,7 +177,7 @@ type DeleteTodoArgs = {
 export function useDeleteTodo() {
   const queryClient = useQueryClient();
 
-  return useMutation<{ success: boolean }, Error, DeleteTodoArgs, TodoSnapshots>({
+  return useMutation<{ success: boolean }, Error, DeleteTodoArgs, ScopedContext>({
     mutationFn: async ({ id, source }) => {
       const res = await fetch(`/api/todos/${id}`, {
         method: "DELETE",
@@ -190,47 +187,32 @@ export function useDeleteTodo() {
       if (!res.ok) throw new Error("Failed to delete todo");
       return res.json();
     },
-    onMutate: async ({ id }) => {
-      await queryClient.cancelQueries({ queryKey: ["dayTodos"] });
-      await queryClient.cancelQueries({ queryKey: ["listTodos"] });
+    onMutate: async ({ id, source }) => {
+      const queryKey = sourceToQueryKey(source);
+      await queryClient.cancelQueries({ queryKey });
 
-      const daySnapshots = queryClient.getQueriesData<DayTodosResponse>({
-        queryKey: ["dayTodos"],
-      });
-      const listSnapshots = queryClient.getQueriesData<ListTodosResponse>({
-        queryKey: ["listTodos"],
-      });
+      const snapshot = queryClient.getQueryData<
+        DayTodosResponse | ListTodosResponse
+      >(queryKey);
 
-      queryClient.setQueriesData<DayTodosResponse>(
-        { queryKey: ["dayTodos"] },
-        (old) =>
-          old
-            ? { ...old, todos: old.todos.filter((t) => t.id !== id) }
-            : undefined
-      );
-      queryClient.setQueriesData<ListTodosResponse>(
-        { queryKey: ["listTodos"] },
-        (old) =>
-          old
-            ? { ...old, todos: old.todos.filter((t) => t.id !== id) }
-            : undefined
-      );
+      if (snapshot) {
+        queryClient.setQueryData(queryKey, {
+          ...snapshot,
+          todos: snapshot.todos.filter((t) => t.id !== id),
+        });
+      }
 
-      return { daySnapshots, listSnapshots };
+      return { queryKey, snapshot };
     },
     onError: (_err, _vars, context) => {
-      if (context) {
-        for (const [key, data] of context.daySnapshots) {
-          queryClient.setQueryData(key, data);
-        }
-        for (const [key, data] of context.listSnapshots) {
-          queryClient.setQueryData(key, data);
-        }
+      if (context?.snapshot) {
+        queryClient.setQueryData(context.queryKey, context.snapshot);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["dayTodos"] });
-      queryClient.invalidateQueries({ queryKey: ["listTodos"] });
+    onSettled: (_data, _err, _vars, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
     },
   });
 }
