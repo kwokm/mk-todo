@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { cn } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
 import type { Todo } from "@/lib/types";
-import { Check, GripVertical, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { MoveToMenu } from "@/components/MoveToMenu";
 
 interface TodoItemProps {
@@ -12,10 +12,9 @@ interface TodoItemProps {
   source?: string;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
-  dragHandleProps?: Record<string, unknown>;
 }
 
-export function TodoItem({ todo, source, onUpdate, onDelete, dragHandleProps }: TodoItemProps) {
+export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [justCompleted, setJustCompleted] = useState(false);
@@ -111,15 +110,6 @@ export function TodoItem({ todo, source, onUpdate, onDelete, dragHandleProps }: 
           {renderMarkdown(todo.text)}
         </span>
       )}
-
-      <button
-        type="button"
-        {...dragHandleProps}
-        className="flex size-5 shrink-0 cursor-grab items-center justify-center text-white/10 transition-colors duration-150 active:cursor-grabbing focus-visible:text-white/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#9333ea]/50 md:text-transparent group-hover:text-white/30"
-        aria-label="Drag to reorder"
-      >
-        <GripVertical className="size-3" />
-      </button>
 
       {source && <MoveToMenu todoId={todo.id} source={source} />}
 

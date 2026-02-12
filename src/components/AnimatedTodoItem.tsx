@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { SortableTodoItem } from "./SortableTodoItem";
+import { TodoItem } from "./TodoItem";
 import type { Todo } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -28,14 +28,12 @@ export function AnimatedTodoItem({ todo, source, onUpdate, onDelete }: AnimatedT
         isDeleting && "animate-collapse-out"
       )}
       onAnimationEnd={(e) => {
-        // Clear the entry animation so no residual transform persists —
-        // leftover transforms break dnd-kit's position measurements.
         if (e.animationName === "fadeSlideIn") {
           setAnimated(true);
         }
       }}
     >
-      <SortableTodoItem
+      <TodoItem
         todo={todo}
         source={source}
         onUpdate={onUpdate}

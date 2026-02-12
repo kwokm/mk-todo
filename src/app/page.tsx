@@ -7,7 +7,6 @@ import { CalendarView } from "@/components/CalendarView";
 import { TabBar } from "@/components/TabBar";
 import { ListView } from "@/components/ListView";
 import { BottomSheet } from "@/components/BottomSheet";
-import { TodoDndProvider } from "@/components/TodoDndProvider";
 import {
   useTabs,
   useCreateTab,
@@ -45,7 +44,6 @@ export default function Home() {
         onDateSelect={(date) => setCurrentStartDate(date)}
       />
 
-      <TodoDndProvider>
         {/* Desktop layout */}
         <div className="hidden min-h-0 flex-1 flex-col md:flex">
           <div className="min-h-0 flex-[11] border-b border-[#1a1a1a]">
@@ -92,7 +90,6 @@ export default function Home() {
             <ListView activeTabId={resolvedActiveTabId} />
           )}
         </BottomSheet>
-      </TodoDndProvider>
     </div>
   );
 }

@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect, type ReactNode, type KeyboardEvent } from "react";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useDroppable } from "@dnd-kit/core";
 import type { Todo } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AnimatedTodoItem } from "@/components/AnimatedTodoItem";
@@ -36,8 +31,6 @@ export function NotebookColumn({
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
-  const { setNodeRef } = useDroppable({ id: containerId });
-
   useEffect(() => {
     if (activeLineIndex !== null) {
       inputRef.current?.focus();
@@ -75,16 +68,11 @@ export function NotebookColumn({
       {header}
 
       <div
-        ref={setNodeRef}
         className={cn(
           "notebook-lines transition-colors duration-200",
           notebookClassName,
         )}
       >
-        <SortableContext
-          items={todos.map((t) => t.id)}
-          strategy={verticalListSortingStrategy}
-        >
           {todos.map((todo) => (
             <AnimatedTodoItem
               key={todo.id}
@@ -94,7 +82,6 @@ export function NotebookColumn({
               onDelete={onDeleteTodo}
             />
           ))}
-        </SortableContext>
 
         {Array.from({ length: emptyLines }).map((_, i) => {
           const lineIndex = todos.length + i;
