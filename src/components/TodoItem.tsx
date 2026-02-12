@@ -179,11 +179,9 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
         ) : isHeader ? (
           <span
             onClick={startEdit}
-            className="min-w-0 flex-1 cursor-text px-1 leading-8"
+            className="flex min-w-0 flex-1 cursor-text items-center rounded bg-[#2a2a2a] px-2.5 text-xs font-bold uppercase leading-8 tracking-wide text-white"
           >
-            <span className="inline-block rounded bg-[#2a2a2a] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-              {displayText}
-            </span>
+            {displayText}
           </span>
         ) : (
           <span
