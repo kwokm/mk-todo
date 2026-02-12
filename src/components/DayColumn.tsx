@@ -30,7 +30,7 @@ export function DayColumn({
       </p>
       <p
         className={cn(
-          "font-heading text-2xl font-bold uppercase leading-tight transition-transform duration-150 hover:translate-x-0.5 hover:-translate-y-0.5",
+          "font-heading text-2xl font-bold uppercase leading-tight",
           today ? "text-[#9333ea]" : "text-white"
         )}
       >

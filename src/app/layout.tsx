@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Fjalla_One } from "next/font/google";
+import { DM_Sans, Fjalla_One } from "next/font/google";
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 const fjalla = Fjalla_One({
@@ -27,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${inter.variable} ${fjalla.variable} font-sans antialiased`}>
+      <body className={`${dmSans.variable} ${fjalla.variable} font-sans antialiased`}>
         <QueryProvider>
           {children}
           <Toaster theme="dark" position="bottom-center" richColors />

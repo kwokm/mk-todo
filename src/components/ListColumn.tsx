@@ -74,7 +74,7 @@ export function ListColumn({
               setNameText(list.name);
               setEditingName(true);
             }}
-            className="cursor-text truncate font-heading text-lg font-bold uppercase text-white transition-transform duration-150 hover:translate-x-0.5 hover:-translate-y-0.5"
+            className="cursor-text truncate font-heading text-lg font-bold uppercase text-white"
           >
             {list.name}
           </p>

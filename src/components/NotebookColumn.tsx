@@ -104,7 +104,7 @@ export function NotebookColumn({
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
                   onBlur={handleBlur}
-                  className="h-full w-full bg-transparent px-1 text-sm text-white outline-none"
+                  className="h-full w-full bg-transparent px-1 text-[15px] text-white/90 outline-none"
                   autoFocus
                 />
               ) : (

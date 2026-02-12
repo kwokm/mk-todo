@@ -87,7 +87,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
           onChange={(e) => setEditText(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={saveEdit}
-          className="min-w-0 flex-1 bg-transparent px-1 text-sm leading-8 text-white outline-none"
+          className="min-w-0 flex-1 bg-transparent px-1 text-[15px] leading-8 text-white/90 outline-none"
         />
       ) : isHeader ? (
         <span
@@ -102,7 +102,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
         <span
           onClick={startEdit}
           className={cn(
-            "min-w-0 flex-1 cursor-text truncate px-1 text-sm leading-8",
+            "min-w-0 flex-1 cursor-text truncate px-1 text-[15px] leading-8 text-white/90",
             "transition-all duration-200",
             todo.completed && "text-muted-foreground line-through opacity-50"
           )}
