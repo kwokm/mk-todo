@@ -42,13 +42,7 @@ export function DayColumn({
   );
 
   return (
-    <div className={cn(
-      "flex min-h-0 min-w-0 flex-1 flex-col",
-      today && "relative"
-    )}>
-      {today && (
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#9333ea]/[0.04] to-transparent" />
-      )}
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       <NotebookColumn
         header={header}
         todos={todos}

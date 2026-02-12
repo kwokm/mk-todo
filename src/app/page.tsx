@@ -46,7 +46,7 @@ export default function Home() {
 
         {/* Desktop layout */}
         <div className="hidden min-h-0 flex-1 flex-col md:flex">
-          <div className="min-h-0 flex-[11] border-b border-[#1a1a1a]">
+          <div className="min-h-0 flex-[11] bg-[#0a0a0a]">
             <CalendarView startDate={currentStartDate} />
           </div>
 
@@ -59,7 +59,7 @@ export default function Home() {
             onDeleteTab={(tabId) => deleteTab.mutate({ tabId })}
           />
 
-          <div className="min-h-0 flex-[9] bg-[#0a0a0a]">
+          <div className="min-h-0 flex-[9]">
             {resolvedActiveTabId && (
               <ListView activeTabId={resolvedActiveTabId} />
             )}
@@ -67,7 +67,7 @@ export default function Home() {
         </div>
 
         {/* Mobile layout */}
-        <div className="flex min-h-0 flex-1 flex-col pb-20 md:hidden">
+        <div className="flex min-h-0 flex-1 flex-col bg-[#0a0a0a] pb-20 md:hidden">
           <div className="min-h-0 flex-1">
             <CalendarView startDate={currentStartDate} />
           </div>

@@ -66,7 +66,7 @@ export function TabBar({
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-y border-[#1a1a1a] px-3 scrollbar-none">
+      <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-t border-[#1a1a1a] px-3 scrollbar-none">
         {tabs.map((tab) => {
           const active = tab.id === activeTabId;
 

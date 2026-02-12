@@ -16,7 +16,7 @@ interface TopBarProps {
 export function TopBar({ currentStartDate, onNavigate, onToday, onDateSelect }: TopBarProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
   return (
-    <header className="flex h-12 shrink-0 items-center justify-between border-b border-[#1a1a1a] px-4">
+    <header className="flex h-12 shrink-0 items-center justify-between bg-[#0a0a0a] px-4">
       <Button
         variant="ghost"
         size="sm"

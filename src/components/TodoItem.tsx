@@ -23,6 +23,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete, dragHandle }: TodoI
   const [showOverlay, setShowOverlay] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (editing) {
@@ -30,6 +31,18 @@ export function TodoItem({ todo, source, onUpdate, onDelete, dragHandle }: TodoI
       inputRef.current?.select();
     }
   }, [editing]);
+
+  // Dismiss overlay on outside tap (mobile)
+  useEffect(() => {
+    if (!showOverlay) return;
+    function handlePointerDown(e: PointerEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowOverlay(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [showOverlay]);
 
   const checkTruncation = useCallback(() => {
     const el = textRef.current;
@@ -96,6 +109,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete, dragHandle }: TodoI
 
   return (
     <div
+      ref={wrapperRef}
       className="group relative"
       onMouseEnter={() => {
         if (isTruncated && !editing) setShowOverlay(true);
@@ -146,7 +160,13 @@ export function TodoItem({ todo, source, onUpdate, onDelete, dragHandle }: TodoI
         ) : (
           <span
             ref={textRef}
-            onClick={startEdit}
+            onClick={() => {
+              if (isTruncated && !showOverlay) {
+                setShowOverlay(true);
+              } else {
+                startEdit();
+              }
+            }}
             className={cn(
               "min-w-0 flex-1 cursor-text overflow-hidden whitespace-nowrap px-1 text-[15px] leading-8 text-white/90",
               "transition-all duration-200",
