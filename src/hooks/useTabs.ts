@@ -171,7 +171,8 @@ export function useReorderLists() {
   return useMutation<
     { success: boolean },
     Error,
-    { tabId: string; listIds: string[] }
+    { tabId: string; listIds: string[] },
+    { previous: TodoList[] | undefined; tabId: string }
   >({
     mutationFn: async ({ tabId, listIds }) => {
       const res = await fetch(`/api/tabs/${tabId}/lists/reorder`, {
