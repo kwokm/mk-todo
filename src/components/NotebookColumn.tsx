@@ -2,21 +2,10 @@
 
 import { useState, useRef, useEffect, type ReactNode, type KeyboardEvent } from "react";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
   SortableContext,
   verticalListSortingStrategy,
-  sortableKeyboardCoordinates,
-  arrayMove,
 } from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { useDroppable } from "@dnd-kit/core";
 import type { Todo } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AnimatedTodoItem } from "@/components/AnimatedTodoItem";
@@ -24,13 +13,12 @@ import { AnimatedTodoItem } from "@/components/AnimatedTodoItem";
 interface NotebookColumnProps {
   header: ReactNode;
   todos: Todo[];
+  containerId: string;
   emptyLines?: number;
   notebookClassName?: string;
   onCreateTodo: (text: string) => void;
   onUpdateTodo: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDeleteTodo: (id: string) => void;
-  onReorder: (todoIds: string[]) => void;
-  onMove?: (id: string, toSource: string) => void;
 }
 
 const DEFAULT_EMPTY_LINES = 20;
@@ -38,37 +26,24 @@ const DEFAULT_EMPTY_LINES = 20;
 export function NotebookColumn({
   header,
   todos,
+  containerId,
   emptyLines = DEFAULT_EMPTY_LINES,
   notebookClassName,
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
-  onReorder,
-  onMove,
 }: NotebookColumnProps) {
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
+  const { setNodeRef, isOver } = useDroppable({ id: containerId });
 
   useEffect(() => {
     if (activeLineIndex !== null) {
       inputRef.current?.focus();
     }
   }, [activeLineIndex]);
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = todos.findIndex((t) => t.id === active.id);
-    const newIndex = todos.findIndex((t) => t.id === over.id);
-    const reordered = arrayMove(todos, oldIndex, newIndex);
-    onReorder(reordered.map((t) => t.id));
-  }
 
   function handleLineClick(lineIndex: number) {
     setActiveLineIndex(lineIndex);
@@ -100,28 +75,27 @@ export function NotebookColumn({
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       {header}
 
-      <div className={cn("notebook-lines", notebookClassName)}>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          modifiers={[restrictToVerticalAxis]}
-          onDragEnd={handleDragEnd}
+      <div
+        ref={setNodeRef}
+        className={cn(
+          "notebook-lines transition-colors duration-200",
+          notebookClassName,
+          isOver && "bg-[#9333ea]/[0.04] ring-1 ring-inset ring-[#9333ea]/20"
+        )}
+      >
+        <SortableContext
+          items={todos.map((t) => t.id)}
+          strategy={verticalListSortingStrategy}
         >
-          <SortableContext
-            items={todos.map((t) => t.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {todos.map((todo) => (
-              <AnimatedTodoItem
-                key={todo.id}
-                todo={todo}
-                onUpdate={onUpdateTodo}
-                onDelete={onDeleteTodo}
-                onMove={onMove}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+          {todos.map((todo) => (
+            <AnimatedTodoItem
+              key={todo.id}
+              todo={todo}
+              onUpdate={onUpdateTodo}
+              onDelete={onDeleteTodo}
+            />
+          ))}
+        </SortableContext>
 
         {Array.from({ length: emptyLines }).map((_, i) => {
           const lineIndex = todos.length + i;

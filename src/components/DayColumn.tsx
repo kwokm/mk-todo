@@ -7,21 +7,19 @@ import { NotebookColumn } from "@/components/NotebookColumn";
 interface DayColumnProps {
   date: Date;
   todos: Todo[];
+  containerId: string;
   onCreateTodo: (text: string) => void;
   onUpdateTodo: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDeleteTodo: (id: string) => void;
-  onReorder: (todoIds: string[]) => void;
-  onMove?: (id: string, toSource: string) => void;
 }
 
 export function DayColumn({
   date,
   todos,
+  containerId,
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
-  onReorder,
-  onMove,
 }: DayColumnProps) {
   const today = isToday(date);
 
@@ -52,12 +50,11 @@ export function DayColumn({
       <NotebookColumn
         header={header}
         todos={todos}
+        containerId={containerId}
         notebookClassName="flex-1 overflow-y-auto overflow-x-hidden scrollbar-fade"
         onCreateTodo={onCreateTodo}
         onUpdateTodo={onUpdateTodo}
         onDeleteTodo={onDeleteTodo}
-        onReorder={onReorder}
-        onMove={onMove}
       />
     </div>
   );

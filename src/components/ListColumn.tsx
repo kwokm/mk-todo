@@ -8,12 +8,11 @@ import { X } from "lucide-react";
 interface ListColumnProps {
   list: TodoList;
   todos: Todo[];
+  containerId: string;
   emptyLines?: number;
   onCreateTodo: (text: string) => void;
   onUpdateTodo: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDeleteTodo: (id: string) => void;
-  onReorder: (todoIds: string[]) => void;
-  onMove?: (id: string, toSource: string) => void;
   onUpdateListName?: (name: string) => void;
   onDeleteList?: () => void;
 }
@@ -21,12 +20,11 @@ interface ListColumnProps {
 export function ListColumn({
   list,
   todos,
+  containerId,
   emptyLines,
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
-  onReorder,
-  onMove,
   onUpdateListName,
   onDeleteList,
 }: ListColumnProps) {
@@ -100,13 +98,12 @@ export function ListColumn({
     <NotebookColumn
       header={header}
       todos={todos}
+      containerId={containerId}
       emptyLines={emptyLines}
       notebookClassName="overflow-x-hidden md:flex-1 md:overflow-y-auto scrollbar-fade"
       onCreateTodo={onCreateTodo}
       onUpdateTodo={onUpdateTodo}
       onDeleteTodo={onDeleteTodo}
-      onReorder={onReorder}
-      onMove={onMove}
     />
   );
 }
