@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, type KeyboardEvent } from "react";
+import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "react";
 import { cn } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
 import type { Todo } from "@/lib/types";
@@ -12,13 +12,17 @@ interface TodoItemProps {
   source?: string;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
+  dragHandle?: React.ReactNode;
 }
 
-export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
+export function TodoItem({ todo, source, onUpdate, onDelete, dragHandle }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     if (editing) {
@@ -27,7 +31,24 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
     }
   }, [editing]);
 
+  const checkTruncation = useCallback(() => {
+    const el = textRef.current;
+    if (el) {
+      setIsTruncated(el.scrollWidth > el.clientWidth);
+    }
+  }, []);
+
+  useEffect(() => {
+    checkTruncation();
+  }, [todo.text, checkTruncation]);
+
+  useEffect(() => {
+    window.addEventListener("resize", checkTruncation);
+    return () => window.removeEventListener("resize", checkTruncation);
+  }, [checkTruncation]);
+
   function startEdit() {
+    setShowOverlay(false);
     setEditText(todo.text);
     setEditing(true);
   }
@@ -57,62 +78,10 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
   const isHeader = todo.text.startsWith("# ");
   const displayText = isHeader ? todo.text.slice(2) : todo.text;
 
-  return (
-    <div className="group flex h-8 items-center gap-1 overflow-hidden px-1 transition-colors duration-150 hover:bg-[#111]">
-      <button
-        type="button"
-        onClick={() => {
-          if (!todo.completed) {
-            setJustCompleted(true);
-            setTimeout(() => setJustCompleted(false), 300);
-          }
-          onUpdate(todo.id, { completed: !todo.completed });
-        }}
-        className={cn(
-          "flex size-5 shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
-          todo.completed
-            ? "text-[#9333ea]"
-            : "text-white/10 hover:text-white/50 md:text-transparent group-hover:text-white/20"
-        )}
-        aria-label={todo.completed ? "Mark incomplete" : "Mark complete"}
-      >
-        <Check className={cn("size-3", justCompleted && "animate-pop")} />
-      </button>
-
-      {editing ? (
-        <input
-          ref={inputRef}
-          type="text"
-          value={editText}
-          onChange={(e) => setEditText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={saveEdit}
-          className="min-w-0 flex-1 bg-transparent px-1 text-[15px] leading-8 text-white/90 outline-none"
-        />
-      ) : isHeader ? (
-        <span
-          onClick={startEdit}
-          className="min-w-0 flex-1 cursor-text px-1 leading-8"
-        >
-          <span className="inline-block rounded bg-[#2a2a2a] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
-            {displayText}
-          </span>
-        </span>
-      ) : (
-        <span
-          onClick={startEdit}
-          className={cn(
-            "min-w-0 flex-1 cursor-text truncate px-1 text-[15px] leading-8 text-white/90",
-            "transition-all duration-200",
-            todo.completed && "text-muted-foreground line-through opacity-50"
-          )}
-        >
-          {renderMarkdown(todo.text)}
-        </span>
-      )}
-
+  const actions = (
+    <>
       {source && <MoveToMenu todoId={todo.id} source={source} />}
-
+      {dragHandle}
       <button
         type="button"
         onClick={() => onDelete(todo.id)}
@@ -122,6 +91,116 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
       >
         <X className="size-3" />
       </button>
+    </>
+  );
+
+  return (
+    <div
+      className="group relative"
+      onMouseEnter={() => {
+        if (isTruncated && !editing) setShowOverlay(true);
+      }}
+      onMouseLeave={() => setShowOverlay(false)}
+    >
+      {/* Normal row — always rendered to preserve layout */}
+      <div className="flex h-8 items-center gap-1 overflow-hidden px-1 transition-colors duration-150 hover:bg-[#111]">
+        <button
+          type="button"
+          onClick={() => {
+            if (!todo.completed) {
+              setJustCompleted(true);
+              setTimeout(() => setJustCompleted(false), 300);
+            }
+            onUpdate(todo.id, { completed: !todo.completed });
+          }}
+          className={cn(
+            "flex size-5 shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
+            todo.completed
+              ? "text-[#9333ea]"
+              : "text-white/10 hover:text-white/50 md:text-transparent group-hover:text-white/20"
+          )}
+          aria-label={todo.completed ? "Mark incomplete" : "Mark complete"}
+        >
+          <Check className={cn("size-3", justCompleted && "animate-pop")} />
+        </button>
+
+        {editing ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onBlur={saveEdit}
+            className="min-w-0 flex-1 bg-transparent px-1 text-[15px] leading-8 text-white/90 outline-none"
+          />
+        ) : isHeader ? (
+          <span
+            onClick={startEdit}
+            className="min-w-0 flex-1 cursor-text px-1 leading-8"
+          >
+            <span className="inline-block rounded bg-[#2a2a2a] px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide text-white">
+              {displayText}
+            </span>
+          </span>
+        ) : (
+          <span
+            ref={textRef}
+            onClick={startEdit}
+            className={cn(
+              "min-w-0 flex-1 cursor-text overflow-hidden whitespace-nowrap px-1 text-[15px] leading-8 text-white/90",
+              "transition-all duration-200",
+              isTruncated && "[mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)]",
+              todo.completed && "text-muted-foreground line-through opacity-50"
+            )}
+          >
+            {renderMarkdown(todo.text)}
+          </span>
+        )}
+
+        {actions}
+      </div>
+
+      {/* Expanded overlay for truncated text */}
+      {showOverlay && !editing && (
+        <div className="absolute inset-x-0 top-0 z-40 rounded-sm bg-[#111] shadow-lg shadow-black/40 ring-1 ring-white/5">
+          <div className="flex items-start gap-1 px-1 py-1">
+            <button
+              type="button"
+              onClick={() => {
+                if (!todo.completed) {
+                  setJustCompleted(true);
+                  setTimeout(() => setJustCompleted(false), 300);
+                }
+                onUpdate(todo.id, { completed: !todo.completed });
+              }}
+              className={cn(
+                "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
+                todo.completed
+                  ? "text-[#9333ea]"
+                  : "text-white/20 hover:text-white/50"
+              )}
+              aria-label={todo.completed ? "Mark incomplete" : "Mark complete"}
+            >
+              <Check className="size-3" />
+            </button>
+
+            <span
+              onClick={startEdit}
+              className={cn(
+                "min-w-0 flex-1 cursor-text break-words px-1 py-0.5 text-[15px] leading-7 text-white/90",
+                todo.completed && "text-muted-foreground line-through opacity-50"
+              )}
+            >
+              {renderMarkdown(todo.text)}
+            </span>
+
+            <div className="mt-0.5 flex shrink-0 items-center gap-1">
+              {actions}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

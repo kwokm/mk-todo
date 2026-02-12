@@ -7,6 +7,7 @@ import {
   useCreateTodo,
   useUpdateTodo,
   useDeleteTodo,
+  useReorderTodo,
 } from "@/hooks/useTodos";
 import type { TodoList } from "@/lib/types";
 import { Plus } from "lucide-react";
@@ -28,6 +29,7 @@ function ListColumnContainer({
   const createTodo = useCreateTodo();
   const updateTodo = useUpdateTodo();
   const deleteTodo = useDeleteTodo();
+  const reorderTodo = useReorderTodo();
 
   if (isLoading) {
     return (
@@ -69,6 +71,9 @@ function ListColumnContainer({
       onUpdateTodo={(id, updates) => updateTodo.mutate({ id, source: `list:${list.tabId}:${list.id}`, ...updates })}
       onDeleteTodo={(id) =>
         deleteTodo.mutate({ id, source: `list:${list.tabId}:${list.id}` })
+      }
+      onReorderTodos={(todoIds) =>
+        reorderTodo.mutate({ source: `list:${list.tabId}:${list.id}`, todoIds })
       }
       onUpdateListName={onUpdateListName}
       onDeleteList={onDeleteList}

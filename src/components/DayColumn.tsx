@@ -11,6 +11,7 @@ interface DayColumnProps {
   onCreateTodo: (text: string) => void;
   onUpdateTodo: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDeleteTodo: (id: string) => void;
+  onReorderTodos?: (todoIds: string[]) => void;
 }
 
 export function DayColumn({
@@ -20,6 +21,7 @@ export function DayColumn({
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
+  onReorderTodos,
 }: DayColumnProps) {
   const today = isToday(date);
 
@@ -55,6 +57,7 @@ export function DayColumn({
         onCreateTodo={onCreateTodo}
         onUpdateTodo={onUpdateTodo}
         onDeleteTodo={onDeleteTodo}
+        onReorderTodos={onReorderTodos}
       />
     </div>
   );

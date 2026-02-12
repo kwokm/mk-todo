@@ -40,10 +40,7 @@ function TabRow({
   if (!availableLists?.length) return null;
 
   return (
-    <div
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
-    >
+    <div>
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
@@ -112,7 +109,10 @@ export function MoveToMenu({ todoId, source }: MoveToMenuProps) {
 
   // Derive the currently selected date from source so the calendar can highlight it
   const sourceDate = source.startsWith("day:")
-    ? new Date(source.slice(4) + "T00:00:00")
+    ? (() => {
+        const [y, m, d] = source.slice(4).split("-").map(Number);
+        return new Date(y, m - 1, d);
+      })()
     : undefined;
 
   return (

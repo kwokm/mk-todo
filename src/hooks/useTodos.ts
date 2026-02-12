@@ -295,3 +295,57 @@ export function useMoveTodo() {
     },
   });
 }
+
+type ReorderTodoArgs = {
+  source: string;
+  todoIds: string[];
+};
+
+export function useReorderTodo() {
+  const queryClient = useQueryClient();
+
+  return useMutation<{ success: boolean }, Error, ReorderTodoArgs, ScopedContext>({
+    mutationFn: async ({ source, todoIds }) => {
+      const res = await fetch("/api/todos/reorder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source, todoIds }),
+      });
+      if (!res.ok) throw new Error("Failed to reorder todos");
+      return res.json();
+    },
+    onMutate: async ({ source, todoIds }) => {
+      const queryKey = sourceToQueryKey(source);
+      await queryClient.cancelQueries({ queryKey });
+
+      const snapshot = queryClient.getQueryData<
+        DayTodosResponse | ListTodosResponse
+      >(queryKey);
+
+      if (snapshot) {
+        const todoMap = new Map(snapshot.todos.map((t) => [t.id, t]));
+        const reordered = todoIds
+          .map((id) => todoMap.get(id))
+          .filter(Boolean) as Todo[];
+
+        queryClient.setQueryData(queryKey, {
+          ...snapshot,
+          todos: reordered,
+        });
+      }
+
+      return { queryKey, snapshot };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(context.queryKey, context.snapshot);
+      }
+      toast.error("Failed to reorder todos");
+    },
+    onSettled: (_data, _err, _vars, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
+    },
+  });
+}

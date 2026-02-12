@@ -13,6 +13,7 @@ interface ListColumnProps {
   onCreateTodo: (text: string) => void;
   onUpdateTodo: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDeleteTodo: (id: string) => void;
+  onReorderTodos?: (todoIds: string[]) => void;
   onUpdateListName?: (name: string) => void;
   onDeleteList?: () => void;
 }
@@ -25,6 +26,7 @@ export function ListColumn({
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
+  onReorderTodos,
   onUpdateListName,
   onDeleteList,
 }: ListColumnProps) {
@@ -104,6 +106,7 @@ export function ListColumn({
       onCreateTodo={onCreateTodo}
       onUpdateTodo={onUpdateTodo}
       onDeleteTodo={onDeleteTodo}
+      onReorderTodos={onReorderTodos}
     />
   );
 }
