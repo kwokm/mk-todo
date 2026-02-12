@@ -27,9 +27,10 @@ export function SortableTodoItem({ todo, source, onUpdate, onDelete }: SortableT
     isDragging,
   } = useSortable({ id: todo.id });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
+    touchAction: "manipulation",
   };
 
   const handleDelete = useCallback((id: string) => {
@@ -44,7 +45,7 @@ export function SortableTodoItem({ todo, source, onUpdate, onDelete }: SortableT
       className={cn(
         !animated && "animate-fade-slide-in",
         isDeleting && "animate-collapse-out",
-        isDragging && "z-50 cursor-grabbing opacity-90",
+        isDragging && "z-50 cursor-grabbing rounded-sm bg-[#1a1a1a] opacity-95 shadow-lg shadow-black/50 ring-1 ring-[#9333ea]/40",
       )}
       onAnimationEnd={(e) => {
         if (e.animationName === "fadeSlideIn") {

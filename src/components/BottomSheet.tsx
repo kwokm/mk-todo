@@ -82,7 +82,7 @@ export function BottomSheet({ header, children }: BottomSheetProps) {
       />
       <div
         ref={sheetRef}
-        className="fixed inset-x-0 bottom-0 z-40 flex flex-col rounded-t-xl bg-black shadow-[0_-4px_30px_rgba(0,0,0,0.5)] md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex flex-col rounded-t-xl bg-[#0a0a0a] shadow-[0_-4px_30px_rgba(0,0,0,0.5)] md:hidden"
         style={style}
       >
       <div

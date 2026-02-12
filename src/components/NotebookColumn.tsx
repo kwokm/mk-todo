@@ -5,7 +5,7 @@ import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -33,19 +33,20 @@ interface NotebookColumnProps {
   onReorderTodos?: (todoIds: string[]) => void;
 }
 
-const DEFAULT_EMPTY_LINES = 20;
+const DEFAULT_MIN_LINES = 10;
 
 export function NotebookColumn({
   header,
   todos,
   containerId,
-  emptyLines = DEFAULT_EMPTY_LINES,
+  emptyLines: emptyLinesProp,
   notebookClassName,
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
   onReorderTodos,
 }: NotebookColumnProps) {
+  const emptyLines = emptyLinesProp ?? Math.max(DEFAULT_MIN_LINES - todos.length, 1);
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -56,11 +57,11 @@ export function NotebookColumn({
   }, [activeLineIndex]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: { distance: 5 },
     }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 5 },
+      activationConstraint: { delay: 200, tolerance: 8 },
     }),
     useSensor(KeyboardSensor)
   );

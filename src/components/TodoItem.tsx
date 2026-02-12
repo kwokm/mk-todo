@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useCallback, type KeyboardEvent } from "re
 import { cn } from "@/lib/utils";
 import { renderMarkdown } from "@/lib/markdown";
 import type { Todo } from "@/lib/types";
-import { Check, X } from "lucide-react";
+import { Check, X, Undo2 } from "lucide-react";
 import { MoveToMenu } from "@/components/MoveToMenu";
 
 interface TodoItemProps {
@@ -20,6 +20,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
   const [justCompleted, setJustCompleted] = useState(false);
   const [isTruncated, setIsTruncated] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -42,6 +43,13 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
     document.addEventListener("pointerdown", handlePointerDown);
     return () => document.removeEventListener("pointerdown", handlePointerDown);
   }, [showOverlay]);
+
+  // Auto-dismiss delete confirmation
+  useEffect(() => {
+    if (!confirmingDelete) return;
+    const timer = setTimeout(() => setConfirmingDelete(false), 2500);
+    return () => clearTimeout(timer);
+  }, [confirmingDelete]);
 
   const checkTruncation = useCallback(() => {
     const el = textRef.current;
@@ -93,15 +101,37 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
   const actions = (
     <>
       {source && <MoveToMenu todoId={todo.id} source={source} />}
-      <button
-        type="button"
-        onClick={() => onDelete(todo.id)}
-        className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/40 transition-colors duration-150 hover:text-red-400 md:text-transparent md:group-hover:text-white/30"
-        aria-label="Delete todo"
-        tabIndex={-1}
-      >
-        <X className="size-3" />
-      </button>
+      {confirmingDelete ? (
+        <div className="flex shrink-0 items-center overflow-hidden rounded-md ring-1 ring-white/10">
+          <button
+            type="button"
+            onClick={() => setConfirmingDelete(false)}
+            className="flex size-5 items-center justify-center bg-white/5 text-white/50 transition-colors duration-150 hover:bg-white/10 hover:text-white"
+            aria-label="Cancel delete"
+          >
+            <Undo2 className="size-2.5" />
+          </button>
+          <div className="h-3 w-px bg-white/10" />
+          <button
+            type="button"
+            onClick={() => onDelete(todo.id)}
+            className="flex size-5 items-center justify-center bg-red-500/15 text-red-400 transition-colors duration-150 hover:bg-red-500/30 hover:text-red-300"
+            aria-label="Confirm delete"
+          >
+            <Check className="size-2.5" />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirmingDelete(true)}
+          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/40 transition-colors duration-150 hover:text-red-400 md:text-transparent md:group-hover:text-white/30"
+          aria-label="Delete todo"
+          tabIndex={-1}
+        >
+          <X className="size-3" />
+        </button>
+      )}
     </>
   );
 
