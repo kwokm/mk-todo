@@ -48,6 +48,11 @@ A personally optimized todo list and productivity engine — built around a note
 ## Getting Started
 
 ```bash
+# Clone and configure git hooks
+git clone https://github.com/kwokm/mk-todo.git
+cd mk-todo
+git config core.hooksPath .githooks
+
 # Install dependencies
 bun install
 
@@ -60,3 +65,5 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to use the app.
+
+> **Note:** The git hooks directory (`.githooks/`) includes a pre-commit hook that rewrites private registry URLs in `bun.lock` to the public npm registry before each commit, ensuring CI/CD environments like Vercel can resolve packages.
