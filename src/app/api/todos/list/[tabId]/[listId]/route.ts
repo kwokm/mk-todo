@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { generateId } from "@/lib/utils";
+import { isValidId, isValidText } from "@/lib/validation";
 import type { Todo } from "@/lib/types";
 
 export async function GET(
@@ -8,6 +9,11 @@ export async function GET(
   { params }: { params: Promise<{ tabId: string; listId: string }> }
 ) {
   const { tabId, listId } = await params;
+
+  if (!isValidId(tabId) || !isValidId(listId)) {
+    return NextResponse.json({ error: "Invalid tabId or listId" }, { status: 400 });
+  }
+
   const key = `list:${tabId}:${listId}`;
 
   const ids = await redis.zrange<string[]>(key, 0, -1);
@@ -31,6 +37,14 @@ export async function POST(
 ) {
   const { tabId, listId } = await params;
   const { text } = (await req.json()) as { text: string };
+
+  if (!isValidId(tabId) || !isValidId(listId)) {
+    return NextResponse.json({ error: "Invalid tabId or listId" }, { status: 400 });
+  }
+  if (!isValidText(text)) {
+    return NextResponse.json({ error: "Invalid text" }, { status: 400 });
+  }
+
   const key = `list:${tabId}:${listId}`;
 
   const id = generateId();

@@ -1,52 +1,36 @@
 "use client";
 
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  sortableKeyboardCoordinates,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
-import type { Todo, TodoList } from "@/lib/types";
-import { AnimatedTodoItem } from "@/components/AnimatedTodoItem";
-import { cn } from "@/lib/utils";
+import type { TodoList, Todo } from "@/lib/types";
+import { NotebookColumn } from "@/components/NotebookColumn";
+import { X } from "lucide-react";
 
 interface ListColumnProps {
   list: TodoList;
   todos: Todo[];
+  emptyLines?: number;
   onCreateTodo: (text: string) => void;
   onUpdateTodo: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDeleteTodo: (id: string) => void;
   onReorder: (todoIds: string[]) => void;
+  onUpdateListName?: (name: string) => void;
+  onDeleteList?: () => void;
 }
-
-const MIN_EMPTY_LINES = 20;
 
 export function ListColumn({
   list,
   todos,
+  emptyLines,
   onCreateTodo,
   onUpdateTodo,
   onDeleteTodo,
   onReorder,
+  onUpdateListName,
+  onDeleteList,
 }: ListColumnProps) {
   const [editingName, setEditingName] = useState(false);
   const [nameText, setNameText] = useState(list.name);
   const nameInputRef = useRef<HTMLInputElement>(null);
-
-  const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
-  const [inputText, setInputText] = useState("");
-  const lineInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (editingName) {
@@ -55,13 +39,11 @@ export function ListColumn({
     }
   }, [editingName]);
 
-  useEffect(() => {
-    if (activeLineIndex !== null) {
-      lineInputRef.current?.focus();
-    }
-  }, [activeLineIndex]);
-
   function saveName() {
+    const trimmed = nameText.trim();
+    if (trimmed && trimmed !== list.name && onUpdateListName) {
+      onUpdateListName(trimmed);
+    }
     setEditingName(false);
   }
 
@@ -73,48 +55,9 @@ export function ListColumn({
     }
   }
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIndex = todos.findIndex((t) => t.id === active.id);
-    const newIndex = todos.findIndex((t) => t.id === over.id);
-    const reordered = arrayMove(todos, oldIndex, newIndex);
-    onReorder(reordered.map((t) => t.id));
-  }
-
-  function handleLineClick(lineIndex: number) {
-    setActiveLineIndex(lineIndex);
-    setInputText("");
-  }
-
-  function handleLineKeyDown(e: KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter" && inputText.trim()) {
-      onCreateTodo(inputText.trim());
-      setInputText("");
-    } else if (e.key === "Enter" && !inputText.trim()) {
-      setActiveLineIndex(null);
-    } else if (e.key === "Escape") {
-      setActiveLineIndex(null);
-      setInputText("");
-    }
-  }
-
-  function handleLineBlur() {
-    if (inputText.trim()) {
-      onCreateTodo(inputText.trim());
-    }
-    setActiveLineIndex(null);
-    setInputText("");
-  }
-
-  return (
-    <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-      <div className="shrink-0 px-5 pt-4 pb-3">
+  const header = (
+    <div className="group/list flex shrink-0 items-center gap-2 px-5 pt-4 pb-3">
+      <div className="min-w-0 flex-1">
         {editingName ? (
           <input
             ref={nameInputRef}
@@ -131,66 +74,36 @@ export function ListColumn({
               setNameText(list.name);
               setEditingName(true);
             }}
-            className="cursor-text font-heading text-lg font-bold uppercase text-white transition-transform duration-150 hover:translate-x-0.5 hover:-translate-y-0.5"
+            className="cursor-text truncate font-heading text-lg font-bold uppercase text-white transition-transform duration-150 hover:translate-x-0.5 hover:-translate-y-0.5"
           >
             {list.name}
           </p>
         )}
       </div>
-
-      <div className="notebook-lines flex-1 overflow-y-auto scrollbar-fade">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          modifiers={[restrictToVerticalAxis]}
-          onDragEnd={handleDragEnd}
+      {onDeleteList && (
+        <button
+          type="button"
+          onClick={onDeleteList}
+          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-transparent transition-colors duration-150 hover:text-red-400 group-hover/list:text-white/30"
+          aria-label={`Delete ${list.name} list`}
+          tabIndex={-1}
         >
-          <SortableContext
-            items={todos.map((t) => t.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {todos.map((todo) => (
-              <AnimatedTodoItem
-                key={todo.id}
-                todo={todo}
-                onUpdate={onUpdateTodo}
-                onDelete={onDeleteTodo}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
-
-        {Array.from({ length: MIN_EMPTY_LINES }).map((_, i) => {
-          const lineIndex = todos.length + i;
-          const isActive = activeLineIndex === lineIndex;
-
-          return (
-            <div
-              key={`empty-${i}`}
-              className={cn(
-                "h-8 px-1 transition-colors duration-150",
-                isActive ? "border-l-2 border-[#9333ea] bg-white/[0.02]" : "empty-line"
-              )}
-              onClick={() => handleLineClick(lineIndex)}
-            >
-              {isActive ? (
-                <input
-                  ref={lineInputRef}
-                  type="text"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  onKeyDown={handleLineKeyDown}
-                  onBlur={handleLineBlur}
-                  className="h-full w-full bg-transparent px-1 text-sm text-white outline-none"
-                  autoFocus
-                />
-              ) : (
-                <div className="h-full w-full cursor-text" />
-              )}
-            </div>
-          );
-        })}
-      </div>
+          <X className="size-3" />
+        </button>
+      )}
     </div>
+  );
+
+  return (
+    <NotebookColumn
+      header={header}
+      todos={todos}
+      emptyLines={emptyLines}
+      notebookClassName="overflow-x-hidden md:flex-1 md:overflow-y-auto scrollbar-fade"
+      onCreateTodo={onCreateTodo}
+      onUpdateTodo={onUpdateTodo}
+      onDeleteTodo={onDeleteTodo}
+      onReorder={onReorder}
+    />
   );
 }

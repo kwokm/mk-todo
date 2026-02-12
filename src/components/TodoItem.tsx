@@ -71,7 +71,7 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
           "flex size-5 shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
           todo.completed
             ? "text-[#9333ea]"
-            : "text-transparent hover:text-white/50 group-hover:text-white/20"
+            : "text-white/10 hover:text-white/50 md:text-transparent group-hover:text-white/20"
         )}
         aria-label={todo.completed ? "Mark incomplete" : "Mark complete"}
       >
@@ -113,7 +113,7 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
       <button
         type="button"
         {...dragHandleProps}
-        className="flex size-5 shrink-0 cursor-grab items-center justify-center text-transparent transition-colors duration-150 group-hover:text-white/30"
+        className="flex size-5 shrink-0 cursor-grab items-center justify-center text-white/10 transition-colors duration-150 md:text-transparent group-hover:text-white/30"
         aria-label="Drag to reorder"
         tabIndex={-1}
       >
@@ -123,7 +123,7 @@ export function TodoItem({ todo, onUpdate, onDelete, dragHandleProps }: TodoItem
       <button
         type="button"
         onClick={() => onDelete(todo.id)}
-        className="flex size-5 shrink-0 items-center justify-center rounded-sm text-transparent transition-colors duration-150 hover:text-red-400 group-hover:text-white/30"
+        className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/10 transition-colors duration-150 hover:text-red-400 md:text-transparent group-hover:text-white/30"
         aria-label="Delete todo"
         tabIndex={-1}
       >

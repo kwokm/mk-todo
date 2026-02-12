@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { generateId } from "@/lib/utils";
+import { isValidName } from "@/lib/validation";
 import type { TodoList } from "@/lib/types";
 
 const DEFAULT_UNDERLYING_LISTS: TodoList[] = [
@@ -58,6 +59,11 @@ export async function POST(
 ) {
   const { tabId } = await params;
   const { name } = (await req.json()) as { name: string };
+
+  if (!isValidName(name)) {
+    return NextResponse.json({ error: "Invalid name" }, { status: 400 });
+  }
+
   const key = `tab:${tabId}:lists`;
 
   const lists = (await redis.get<TodoList[]>(key)) ?? [];

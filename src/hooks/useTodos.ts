@@ -36,10 +36,16 @@ type CreateTodoArgs = {
     | { type: "list"; tabId: string; listId: string };
 };
 
+type CreateTodoContext = {
+  queryKey: QueryKey;
+  snapshot: DayTodosResponse | ListTodosResponse | undefined;
+  tempId: string;
+};
+
 export function useCreateTodo() {
   const queryClient = useQueryClient();
 
-  return useMutation<Todo, Error, CreateTodoArgs>({
+  return useMutation<Todo, Error, CreateTodoArgs, CreateTodoContext>({
     mutationFn: async ({ text, source }) => {
       const url =
         source.type === "day"
@@ -54,13 +60,45 @@ export function useCreateTodo() {
       if (!res.ok) throw new Error("Failed to create todo");
       return res.json();
     },
-    onSuccess: (_data, { source }) => {
-      if (source.type === "day") {
-        queryClient.invalidateQueries({ queryKey: ["dayTodos", source.date] });
-      } else {
-        queryClient.invalidateQueries({
-          queryKey: ["listTodos", source.tabId, source.listId],
+    onMutate: async ({ text, source }) => {
+      const queryKey =
+        source.type === "day"
+          ? ["dayTodos", source.date]
+          : ["listTodos", source.tabId, source.listId];
+
+      await queryClient.cancelQueries({ queryKey });
+
+      const snapshot = queryClient.getQueryData<
+        DayTodosResponse | ListTodosResponse
+      >(queryKey);
+
+      const tempId = `temp-${Date.now()}`;
+      const now = new Date().toISOString();
+      const optimisticTodo: Todo = {
+        id: tempId,
+        text,
+        completed: false,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      if (snapshot) {
+        queryClient.setQueryData(queryKey, {
+          ...snapshot,
+          todos: [...snapshot.todos, optimisticTodo],
         });
+      }
+
+      return { queryKey, snapshot, tempId };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(context.queryKey, context.snapshot);
+      }
+    },
+    onSettled: (_data, _err, _vars, context) => {
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
       }
     },
   });

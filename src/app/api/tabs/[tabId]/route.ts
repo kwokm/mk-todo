@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
+import { isValidId, isValidName } from "@/lib/validation";
 import type { Tab, TodoList } from "@/lib/types";
 
 export async function PATCH(
@@ -8,6 +9,10 @@ export async function PATCH(
 ) {
   const { tabId } = await params;
   const { name } = (await req.json()) as { name: string };
+
+  if (!isValidName(name)) {
+    return NextResponse.json({ error: "Invalid name" }, { status: 400 });
+  }
 
   const tabs = (await redis.get<Tab[]>("tabs")) ?? [];
   const index = tabs.findIndex((t) => t.id === tabId);
@@ -26,6 +31,10 @@ export async function DELETE(
   { params }: { params: Promise<{ tabId: string }> }
 ) {
   const { tabId } = await params;
+
+  if (!isValidId(tabId)) {
+    return NextResponse.json({ error: "Invalid tabId" }, { status: 400 });
+  }
 
   const tabs = (await redis.get<Tab[]>("tabs")) ?? [];
   const filtered = tabs.filter((t) => t.id !== tabId);

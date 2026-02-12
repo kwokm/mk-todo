@@ -5,6 +5,16 @@ import type { Tab } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialogRoot,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 interface TabBarProps {
   tabs: Tab[];
@@ -52,70 +62,48 @@ export function TabBar({
     if (e.key === "Escape") setEditingId(null);
   }
 
-  return (
-    <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-y border-[#1a1a1a] px-3 scrollbar-none">
-      {tabs.map((tab) => {
-        const active = tab.id === activeTabId;
+  const tabToDelete = tabs.find((t) => t.id === confirmDeleteId);
 
-        return (
-          <div
-            key={tab.id}
-            className={cn(
-              "group/tab relative flex shrink-0 items-center",
-              active
-                ? "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#9333ea]"
-                : ""
-            )}
-          >
-            <button
-              type="button"
-              onClick={() => onSelectTab(tab.id)}
-              onDoubleClick={() => startEdit(tab)}
+  return (
+    <>
+      <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-y border-[#1a1a1a] px-3 scrollbar-none">
+        {tabs.map((tab) => {
+          const active = tab.id === activeTabId;
+
+          return (
+            <div
+              key={tab.id}
               className={cn(
-                "shrink-0 px-3 py-2.5 text-xs font-medium uppercase tracking-wide transition-colors duration-150",
-                active ? "text-white" : "text-muted-foreground hover:text-white"
+                "group/tab relative flex shrink-0 items-center",
+                active
+                  ? "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-[#9333ea]"
+                  : ""
               )}
             >
-              {editingId === tab.id ? (
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onBlur={saveEdit}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-16 bg-transparent text-center text-xs font-medium uppercase tracking-wide text-white outline-none"
-                />
-              ) : (
-                tab.name
-              )}
-            </button>
-            {confirmDeleteId === tab.id ? (
-              <span className="mr-1 flex shrink-0 items-center gap-1 text-[10px]">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteTab(tab.id);
-                    setConfirmDeleteId(null);
-                  }}
-                  className="rounded px-1 py-0.5 text-red-400 transition-colors hover:bg-red-400/20"
-                >
-                  Delete
-                </button>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setConfirmDeleteId(null);
-                  }}
-                  className="rounded px-1 py-0.5 text-muted-foreground transition-colors hover:text-white"
-                >
-                  Cancel
-                </button>
-              </span>
-            ) : (
+              <button
+                type="button"
+                onClick={() => onSelectTab(tab.id)}
+                onDoubleClick={() => startEdit(tab)}
+                className={cn(
+                  "shrink-0 px-3 py-2.5 text-xs font-medium uppercase tracking-wide transition-colors duration-150",
+                  active ? "text-white" : "text-muted-foreground hover:text-white"
+                )}
+              >
+                {editingId === tab.id ? (
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onBlur={saveEdit}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-16 bg-transparent text-center text-xs font-medium uppercase tracking-wide text-white outline-none"
+                  />
+                ) : (
+                  tab.name
+                )}
+              </button>
               <button
                 type="button"
                 onClick={(e) => {
@@ -128,20 +116,48 @@ export function TabBar({
               >
                 <X className="size-2.5" />
               </button>
-            )}
-          </div>
-        );
-      })}
+            </div>
+          );
+        })}
 
-      <Button
-        variant="ghost"
-        size="icon-xs"
-        onClick={onCreateTab}
-        className="shrink-0 text-muted-foreground hover:text-white"
-        aria-label="Add tab"
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          onClick={onCreateTab}
+          className="shrink-0 text-muted-foreground hover:text-white"
+          aria-label="Add tab"
+        >
+          <Plus className="size-3.5" />
+        </Button>
+      </div>
+
+      <AlertDialogRoot
+        open={!!confirmDeleteId}
+        onOpenChange={(open) => {
+          if (!open) setConfirmDeleteId(null);
+        }}
       >
-        <Plus className="size-3.5" />
-      </Button>
-    </div>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete tab</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete &ldquo;{tabToDelete?.name}&rdquo;? All lists and todos in this tab will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => {
+                if (confirmDeleteId) onDeleteTab(confirmDeleteId);
+                setConfirmDeleteId(null);
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialogRoot>
+    </>
   );
 }

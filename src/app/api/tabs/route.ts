@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { generateId } from "@/lib/utils";
+import { isValidName } from "@/lib/validation";
 import type { Tab } from "@/lib/types";
 
 const DEFAULT_TABS: Tab[] = [
@@ -22,6 +23,10 @@ export async function GET() {
 
 export async function POST(req: Request) {
   const { name } = (await req.json()) as { name: string };
+
+  if (!isValidName(name)) {
+    return NextResponse.json({ error: "Invalid name" }, { status: 400 });
+  }
 
   const tabs = (await redis.get<Tab[]>("tabs")) ?? [];
 

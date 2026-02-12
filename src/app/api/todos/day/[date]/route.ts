@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { generateId } from "@/lib/utils";
+import { isValidDateKey, isValidText } from "@/lib/validation";
 import type { Todo } from "@/lib/types";
 
 export async function GET(
@@ -8,6 +9,11 @@ export async function GET(
   { params }: { params: Promise<{ date: string }> }
 ) {
   const { date } = await params;
+
+  if (!isValidDateKey(date)) {
+    return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+  }
+
   const key = `day:${date}`;
 
   const ids = await redis.zrange<string[]>(key, 0, -1);
@@ -31,6 +37,14 @@ export async function POST(
 ) {
   const { date } = await params;
   const { text } = (await req.json()) as { text: string };
+
+  if (!isValidDateKey(date)) {
+    return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+  }
+  if (!isValidText(text)) {
+    return NextResponse.json({ error: "Invalid text" }, { status: 400 });
+  }
+
   const key = `day:${date}`;
 
   const id = generateId();
