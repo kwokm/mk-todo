@@ -48,12 +48,9 @@ A personally optimized todo list and productivity engine — built around a note
 ## Getting Started
 
 ```bash
-# Clone and configure git hooks
+# Clone and install (git hooks are configured automatically)
 git clone https://github.com/kwokm/mk-todo.git
 cd mk-todo
-git config core.hooksPath .githooks
-
-# Install dependencies
 bun install
 
 # Set up environment variables
