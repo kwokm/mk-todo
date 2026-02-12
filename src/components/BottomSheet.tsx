@@ -86,13 +86,13 @@ export function BottomSheet({ header, children }: BottomSheetProps) {
         style={style}
       >
       <div
-        className="flex shrink-0 cursor-grab items-center justify-center pt-2 pb-1 active:cursor-grabbing"
+        className="flex shrink-0 cursor-grab items-center justify-center pt-3 pb-3 active:cursor-grabbing"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onClick={handleTap}
       >
-        <div className="h-1 w-8 rounded-full bg-white/20" />
+        <div className="h-1.5 w-12 rounded-full bg-white/25" />
       </div>
 
       <div className="shrink-0">{header}</div>

@@ -96,7 +96,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
       <button
         type="button"
         onClick={() => onDelete(todo.id)}
-        className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/10 transition-colors duration-150 hover:text-red-400 md:text-transparent group-hover:text-white/30"
+        className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/40 transition-colors duration-150 hover:text-red-400 md:text-transparent md:group-hover:text-white/30"
         aria-label="Delete todo"
         tabIndex={-1}
       >
@@ -108,7 +108,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
   return (
     <div
       ref={wrapperRef}
-      className="group relative"
+      className="group relative min-w-0"
       onMouseEnter={() => {
         if (isTruncated && !editing) setShowOverlay(true);
       }}
@@ -129,7 +129,7 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
             "flex size-5 shrink-0 items-center justify-center rounded-sm transition-colors duration-150",
             todo.completed
               ? "text-[#9333ea]"
-              : "text-white/10 hover:text-white/50 md:text-transparent group-hover:text-white/20"
+              : "text-white/40 hover:text-white/50 md:text-transparent md:group-hover:text-white/20"
           )}
           aria-label={todo.completed ? "Mark incomplete" : "Mark complete"}
         >

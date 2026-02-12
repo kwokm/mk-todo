@@ -66,7 +66,7 @@ export function TabBar({
 
   return (
     <>
-      <div className="flex shrink-0 items-center gap-1 overflow-x-auto border-t border-[#1a1a1a] px-3 scrollbar-none">
+      <div className="flex shrink-0 items-center gap-1 overflow-x-auto md:border-t md:border-[#1a1a1a] px-3 scrollbar-none">
         {tabs.map((tab) => {
           const active = tab.id === activeTabId;
 
@@ -110,7 +110,7 @@ export function TabBar({
                   e.stopPropagation();
                   setConfirmDeleteId(tab.id);
                 }}
-                className="mr-1 flex size-4 shrink-0 items-center justify-center rounded-sm text-transparent transition-colors duration-150 hover:text-red-400 group-hover/tab:text-white/30"
+                className="mr-1 flex size-4 shrink-0 items-center justify-center rounded-sm text-white/40 transition-colors duration-150 hover:text-red-400 md:text-transparent md:group-hover/tab:text-white/30"
                 aria-label={`Delete ${tab.name} tab`}
                 tabIndex={-1}
               >

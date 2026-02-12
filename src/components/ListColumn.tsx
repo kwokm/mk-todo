@@ -86,7 +86,7 @@ export function ListColumn({
         <button
           type="button"
           onClick={onDeleteList}
-          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-transparent transition-colors duration-150 hover:text-red-400 group-hover/list:text-white/30"
+          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/40 transition-colors duration-150 hover:text-red-400 md:text-transparent md:group-hover/list:text-white/30"
           aria-label={`Delete ${list.name} list`}
           tabIndex={-1}
         >

@@ -120,7 +120,7 @@ export function MoveToMenu({ todoId, source }: MoveToMenuProps) {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/10 transition-colors duration-150 hover:text-purple-400 md:text-transparent group-hover:text-white/30"
+          className="flex size-5 shrink-0 items-center justify-center rounded-sm text-white/40 transition-colors duration-150 hover:text-purple-400 md:text-transparent md:group-hover:text-white/30"
           aria-label="Move to another day or list"
         >
           <ArrowRightLeft className="size-3" />
