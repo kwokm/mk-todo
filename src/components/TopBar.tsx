@@ -91,6 +91,9 @@ export function TopBar({ currentStartDate, onNavigate, onToday, onDateSelect }: 
                 }
               }}
               defaultMonth={currentStartDate}
+              classNames={{
+                today: "bg-[#9333ea]/20 text-[#9333ea] rounded-md",
+              }}
             />
           </PopoverContent>
         </Popover>
