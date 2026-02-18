@@ -12,9 +12,43 @@ interface TodoItemProps {
   source?: string;
   onUpdate: (id: string, updates: { text?: string; completed?: boolean }) => void;
   onDelete: (id: string) => void;
+  isDragOverlay?: boolean;
 }
 
-export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
+function DragOverlayTodoItem({ todo }: { todo: Todo }) {
+  const isHeader = todo.text.startsWith("# ");
+  const displayText = isHeader ? todo.text.slice(2) : todo.text;
+  return (
+    <div className="group relative min-w-0">
+      <div className="flex h-8 items-center gap-1 overflow-hidden px-1">
+        <span
+          className={cn(
+            "flex size-5 shrink-0 items-center justify-center rounded-sm",
+            todo.completed ? "text-[#9333ea]" : "text-white/40"
+          )}
+        >
+          <Check className="size-3" />
+        </span>
+        {isHeader ? (
+          <span className="flex min-w-0 flex-1 items-center rounded bg-[#2a2a2a] px-2.5 text-xs font-bold uppercase leading-6 tracking-wider text-white">
+            {displayText}
+          </span>
+        ) : (
+          <span
+            className={cn(
+              "min-w-0 flex-1 overflow-hidden whitespace-nowrap px-1 text-[15px] leading-8 text-white/90",
+              todo.completed && "text-muted-foreground line-through opacity-50"
+            )}
+          >
+            {renderMarkdown(todo.text)}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function TodoItem({ todo, source, onUpdate, onDelete, isDragOverlay }: TodoItemProps) {
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(todo.text);
   const [justCompleted, setJustCompleted] = useState(false);
@@ -66,6 +100,11 @@ export function TodoItem({ todo, source, onUpdate, onDelete }: TodoItemProps) {
     window.addEventListener("resize", checkTruncation);
     return () => window.removeEventListener("resize", checkTruncation);
   }, [checkTruncation]);
+
+  // For drag overlay, render a simplified static version
+  if (isDragOverlay) {
+    return <DragOverlayTodoItem todo={todo} />;
+  }
 
   function startEdit() {
     setShowOverlay(false);

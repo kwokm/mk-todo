@@ -45,7 +45,7 @@ export function SortableTodoItem({ todo, source, onUpdate, onDelete }: SortableT
       className={cn(
         !animated && "animate-fade-slide-in",
         isDeleting && "animate-collapse-out",
-        isDragging && "z-50 cursor-grabbing rounded-sm bg-[#1a1a1a] opacity-95 shadow-lg shadow-black/50 ring-1 ring-[#9333ea]/40",
+        isDragging && "opacity-30",
       )}
       onAnimationEnd={(e) => {
         if (e.animationName === "fadeSlideIn") {
