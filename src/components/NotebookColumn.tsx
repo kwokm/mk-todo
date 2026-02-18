@@ -1,25 +1,15 @@
 "use client";
 
 import { useState, useRef, useEffect, type ReactNode, type KeyboardEvent } from "react";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
-import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers";
 import type { Todo } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { SortableTodoItem } from "@/components/SortableTodoItem";
+import { useContainerRegistry, useDndState } from "@/components/DndProvider";
 
 interface NotebookColumnProps {
   header: ReactNode;
@@ -62,34 +52,25 @@ export function NotebookColumn({
   const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const { register, unregister } = useContainerRegistry();
+  const { dragState } = useDndState();
+
+  // Register this container with the DndProvider
+  useEffect(() => {
+    if (onReorderTodos) {
+      register(containerId, todos, onReorderTodos);
+    }
+    return () => {
+      unregister(containerId);
+    };
+  }, [containerId, todos, onReorderTodos, register, unregister]);
+
   useEffect(() => {
     if (activeLineIndex !== null) {
       inputRef.current?.focus();
     }
   }, [activeLineIndex]);
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: { distance: 5 },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 8 },
-    }),
-    useSensor(KeyboardSensor)
-  );
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id || !onReorderTodos) return;
-
-    const oldIndex = todos.findIndex((t) => t.id === active.id);
-    const newIndex = todos.findIndex((t) => t.id === over.id);
-
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const reordered = arrayMove(todos, oldIndex, newIndex);
-    onReorderTodos(reordered.map((t) => t.id));
-  }
 
   function handleLineClick(lineIndex: number) {
     setActiveLineIndex(lineIndex);
@@ -119,34 +100,39 @@ export function NotebookColumn({
 
   const todoIds = todos.map((t) => t.id);
 
+  // Set up droppable for the container (for empty area drops)
+  const { setNodeRef } = useDroppable({
+    id: containerId,
+  });
+
+  // Determine if we're receiving a drop from another container
+  const isReceivingDrop = dragState.overSource === containerId &&
+                          dragState.activeSource !== containerId &&
+                          dragState.activeId !== null;
+
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col">
       {header}
 
       <div
+        ref={setNodeRef}
         className={cn(
           "notebook-lines transition-colors duration-200",
           notebookClassName,
+          isReceivingDrop && "ring-2 ring-inset ring-[#9333ea]/30",
         )}
       >
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-        >
-          <SortableContext items={todoIds} strategy={verticalListSortingStrategy}>
-            {todos.map((todo) => (
-              <SortableTodoItem
-                key={todo.id}
-                todo={todo}
-                source={containerId}
-                onUpdate={onUpdateTodo}
-                onDelete={onDeleteTodo}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+        <SortableContext items={todoIds} strategy={verticalListSortingStrategy}>
+          {todos.map((todo) => (
+            <SortableTodoItem
+              key={todo.id}
+              todo={todo}
+              source={containerId}
+              onUpdate={onUpdateTodo}
+              onDelete={onDeleteTodo}
+            />
+          ))}
+        </SortableContext>
 
         {Array.from({ length: emptyLines }).map((_, i) => {
           const lineIndex = todos.length + i;
